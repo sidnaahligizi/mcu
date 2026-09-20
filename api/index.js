@@ -76,15 +76,22 @@ export default async function handler(req, res) {
         return res.status(200).json({ status: 'error', message: 'Username atau Password salah!' });
       }
 
-      if (action === 'savePasien') {
-        const p_id = data.ID_Pasien || new Date().getTime().toString();
-        await client.execute({
-          sql: `INSERT INTO pasien (ID_Pasien, Nama, TempatLahir, TglLahir, PosisiID, Gender, Bagian, Password) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(ID_Pasien) DO UPDATE SET Nama=excluded.Nama, TempatLahir=excluded.TempatLahir, TglLahir=excluded.TglLahir, PosisiID=excluded.PosisiID, Gender=excluded.Gender, Bagian=excluded.Bagian, Password=excluded.Password`,
-          args: [p_id, data.Nama, data.TempatLahir, data.TglLahir, data.PosisiID, data.Gender, data.Bagian, data.Password]
-        });
-        return res.status(200).json({ status: 'success', message: 'Data Pasien berhasil disimpan!' });
+     if (action === 'savePasienBatch') {
+         for(let i=0; i<data.length; i++) {
+             const row = data[i];
+             // Gunakan ID dari Excel jika diisi, jika kosong buat ID otomatis
+             const p_id = row.ID_Pasien ? row.ID_Pasien.toString() : (new Date().getTime().toString() + i);
+             
+             await client.execute({ 
+                 sql: `INSERT INTO pasien (ID_Pasien, Nama, TempatLahir, TglLahir, PosisiID, Gender, Bagian, Password) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?) 
+                       ON CONFLICT(ID_Pasien) DO UPDATE SET 
+                       Nama=excluded.Nama, TempatLahir=excluded.TempatLahir, TglLahir=excluded.TglLahir, PosisiID=excluded.PosisiID, Gender=excluded.Gender, Bagian=excluded.Bagian, Password=excluded.Password`, 
+                 args: [p_id, row.Nama, row.TempatLahir, row.TglLahir, row.PosisiID, row.Gender, row.Bagian, row.Password] 
+             });
+         }
+         return res.status(200).json({ status: 'success', message: 'Batch Data Pasien berhasil disimpan & diupdate!' });
       }
-
       if (action === 'saveMCU') {
         const mcu_id = data.ID || new Date().getTime().toString();
         data.ID = mcu_id;
