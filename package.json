@@ -1,8 +1,12 @@
 {
-  "name": "mcu-puskesmas",
+  "name": "mcu-puskesmas-turso",
   "version": "1.0.0",
+  "description": "Sistem MCU terintegrasi dengan Turso dan Vercel",
   "main": "api/index.js",
+  "scripts": {
+    "start": "node api/index.js"
+  },
   "dependencies": {
-    "@libsql/client": "^0.6.0"
+    "@libsql/client": "^0.4.0-pre.5"
   }
 }
