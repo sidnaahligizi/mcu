@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <title>Sistem MCU - UPT Puskesmas Nelayan</title>
   <link rel="icon" href="https://lh3.googleusercontent.com/d/1lmHDe6r7V4bp3xdRNqfQyuzqREGYe29o" type="image/png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -63,7 +64,9 @@
         <div class="text-center mb-4 d-md-none"><img src="https://lh3.googleusercontent.com/d/1lmHDe6r7V4bp3xdRNqfQyuzqREGYe29o" width="70" class="mb-2"><h4 class="text-primary fw-bold">MCU Puskesmas</h4></div>
         <h3 class="fw-bold text-dark mb-1">Masuk Akun</h3>
         <p class="text-muted mb-4">Silakan login untuk mengakses data kesehatan.</p>
-        <form id="loginForm">
+        
+        <!-- PENGUNCIAN FORM LOGIN ABSOLUT -->
+        <form id="loginForm" onsubmit="event.preventDefault(); try { executeLogin(); } catch(err) { alert('System error: ' + err.message); } return false;">
           <div class="mb-3">
             <label class="form-label fw-bold small text-muted">Role Akses</label>
             <select class="form-select bg-light" id="logRole">
@@ -108,10 +111,18 @@
       <div><h5 class="mb-1 fw-bold" id="dashWelcome">Selamat Datang</h5><small class="opacity-100 text-light" id="dashSubtitle">Kelola rekam medis MCU dengan teliti.</small></div>
     </div>
 
-    <!-- 1. DATA PASIEN -->
+    <!-- 1. DATA PASIEN + FITUR EXCEL -->
     <div id="viewPasien" class="d-none tab-view">
       <div class="card shadow-sm">
-        <div class="card-header d-flex justify-content-between align-items-center"><span><i class="fas fa-users me-2"></i>Database Akun Pasien</span><button class="btn btn-sm btn-primary" onclick="openModalPasien()"><i class="fas fa-plus"></i> Registrasi Pasien Baru</button></div>
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <span><i class="fas fa-users me-2"></i>Database Akun Pasien</span>
+          <div>
+            <input type="file" id="fileExcel" accept=".xlsx, .xls" style="display: none;" onchange="handleUploadExcel(event)">
+            <button class="btn btn-sm btn-success" onclick="downloadTemplate()"><i class="fas fa-file-excel"></i> Unduh Template</button>
+            <button class="btn btn-sm btn-info text-white" onclick="document.getElementById('fileExcel').click()"><i class="fas fa-upload"></i> Upload Excel</button>
+            <button class="btn btn-sm btn-primary" onclick="openModalPasien()"><i class="fas fa-plus"></i> Registrasi Pasien Baru</button>
+          </div>
+        </div>
         <div class="card-body">
           <div class="table-responsive"><table id="tablePasien" class="table table-hover w-100" style="font-size:14px"><thead class="table-light"><tr><th>Nama</th><th>TTL</th><th>ID/Posisi</th><th>Bagian</th><th>Password</th><th>Aksi</th></tr></thead><tbody id="bodyPasien"></tbody></table></div>
         </div>
@@ -120,7 +131,7 @@
 
     <!-- 2. FORMULIR MCU -->
     <div id="viewForm" class="d-none tab-view">
-      <form id="mcuForm">
+      <form id="mcuForm" onsubmit="event.preventDefault(); try { executeFormMCU(); } catch(err) { alert(err.message); } return false;">
         <input type="hidden" id="ID" name="ID">
         
         <div class="card shadow-sm mb-4">
@@ -148,25 +159,10 @@
                 <div class="mb-3"><label class="small">Riwayat Alergi</label><select class="form-select form-select-sm bg-kuning" name="RAlergi"><option value="-">-</option><option>TIDAK ADA</option><option>ADA</option></select></div>
                 
                 <div class="row g-2 mb-3 align-items-start">
-                    <div class="col-6 col-md-3">
-                        <div class="mb-2"><label class="small">BB (Kg)</label><input type="number" step="0.1" class="form-control form-control-sm" name="BB" id="inputBB" oninput="hitungIMT()"></div>
-                        <div class="mb-2"><label class="small">TB (cm)</label><input type="number" step="0.1" class="form-control form-control-sm" name="TB" id="inputTB" oninput="hitungIMT()"></div>
-                        <div class="mb-1"><label class="small">IMT</label><input type="text" class="form-control form-control-sm bg-light fw-bold" name="IMT" id="inputIMT" readonly></div>
-                        <small id="kategoriIMT" class="d-block"></small>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <div class="mb-2"><label class="small">Tempt (°C)</label><input type="text" class="form-control form-control-sm" name="Suhu"></div>
-                        <div class="mb-2"><label class="small">Buta Warna</label><select class="form-select form-select-sm bg-kuning" name="ButaWarna"><option value="-">-</option><option>NORMAL</option><option>YA</option></select></div>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <div class="mb-2"><label class="small">Tensi (mmHg)</label><input type="text" class="form-control form-control-sm" name="Tensi"></div>
-                        <div class="mb-2"><label class="small">Icterus</label><select class="form-select form-select-sm bg-kuning" name="Icterus"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div>
-                        <div class="mb-2"><label class="small">Cyanosis</label><select class="form-select form-select-sm bg-kuning" name="Cyanosis"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <div class="mb-2"><label class="small">Nadi (x/m)</label><input type="text" class="form-control form-control-sm" name="Nadi"></div>
-                        <div class="mb-2"><label class="small">Anemis</label><select class="form-select form-select-sm bg-kuning" name="Anemis"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div>
-                    </div>
+                    <div class="col-6 col-md-3"><div class="mb-2"><label class="small">BB (Kg)</label><input type="number" step="0.1" class="form-control form-control-sm" name="BB" id="inputBB" oninput="hitungIMT()"></div><div class="mb-2"><label class="small">TB (cm)</label><input type="number" step="0.1" class="form-control form-control-sm" name="TB" id="inputTB" oninput="hitungIMT()"></div><div class="mb-1"><label class="small">IMT</label><input type="text" class="form-control form-control-sm bg-light fw-bold" name="IMT" id="inputIMT" readonly></div><small id="kategoriIMT" class="d-block"></small></div>
+                    <div class="col-6 col-md-3"><div class="mb-2"><label class="small">Tempt (°C)</label><input type="text" class="form-control form-control-sm" name="Suhu"></div><div class="mb-2"><label class="small">Buta Warna</label><select class="form-select form-select-sm bg-kuning" name="ButaWarna"><option value="-">-</option><option>NORMAL</option><option>YA</option></select></div></div>
+                    <div class="col-6 col-md-3"><div class="mb-2"><label class="small">Tensi (mmHg)</label><input type="text" class="form-control form-control-sm" name="Tensi"></div><div class="mb-2"><label class="small">Icterus</label><select class="form-select form-select-sm bg-kuning" name="Icterus"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div><div class="mb-2"><label class="small">Cyanosis</label><select class="form-select form-select-sm bg-kuning" name="Cyanosis"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div></div>
+                    <div class="col-6 col-md-3"><div class="mb-2"><label class="small">Nadi (x/m)</label><input type="text" class="form-control form-control-sm" name="Nadi"></div><div class="mb-2"><label class="small">Anemis</label><select class="form-select form-select-sm bg-kuning" name="Anemis"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div></div>
                 </div>
               </div>
 
@@ -294,10 +290,11 @@
   </div>
 </div>
 
+<!-- Modal Tambah/Edit Pasien -->
 <div class="modal fade" id="modalPasien" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form id="formPasien">
+      <form id="formPasien" onsubmit="event.preventDefault(); try { executeFormPasien(); } catch(err) { alert(err.message); } return false;">
         <div class="modal-header"><h5 class="modal-title">Data Akun Pasien</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
           <input type="hidden" name="ID_Pasien" id="ID_Pasien">
@@ -426,12 +423,10 @@
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
-  // KARENA INI SUDAH DI HOSTING DI SERVER YANG SAMA (VERCEL), 
-  // API CUKUP DIPANGGIL MENGGUNAKAN RELATIVE PATH
   const SCRIPT_URL = '/api';
-  
   let mcuData = [], pasienData = [], dokterData = [], dtRekap, dtPasien, currentUser = {};
 
   $(document).ready(() => { 
@@ -441,8 +436,7 @@
     } catch(err) { localStorage.removeItem('loggedUser'); }
   });
 
-  $('#loginForm').on('submit', function(e) {
-    e.preventDefault(); 
+  function executeLogin() {
     const role = $('#logRole').val(), user = $('#logUser').val(), pass = $('#logPass').val();
     Swal.fire({ title: 'Otentikasi Akun...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     
@@ -456,10 +450,43 @@
         localStorage.setItem('loggedUser', JSON.stringify(currentUser)); 
         Swal.close(); setupDashboard(); 
       } else { Swal.fire('Gagal', res.message, 'warning'); }
-    }).catch(err => Swal.fire('Koneksi Terputus', 'Gagal memanggil API Vercel.', 'error'));
-  });
+    }).catch(err => Swal.fire('Error', 'Gagal memanggil API Vercel.', 'error'));
+  }
 
   function logout() { localStorage.removeItem('loggedUser'); location.reload(); }
+
+  // DOWNLOAD & UPLOAD TEMPLATE EXCEL
+  function downloadTemplate() {
+    const ws = XLSX.utils.json_to_sheet([{ Nama: "", TTL: "", PosisiID: "", Gender: "", Bagian: "", Password: "" }]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Pasien");
+    XLSX.writeFile(wb, "Template_Data_Pasien.xlsx");
+  }
+
+  function handleUploadExcel(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const data = new Uint8Array(evt.target.result);
+      const workbook = XLSX.read(data, {type: 'array'});
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(worksheet);
+      
+      if (json.length === 0) { Swal.fire('Kosong', 'File Excel tidak memiliki data!', 'warning'); return; }
+      
+      Swal.fire({ title: 'Upload Batch...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      fetch(SCRIPT_URL, { 
+        method: 'POST', 
+        body: JSON.stringify({ action: 'savePasienBatch', data: json }), 
+        headers: { 'Content-Type': 'application/json' } 
+      }).then(res => res.json()).then(res => {
+        if (res.status === 'success') { Swal.fire('Berhasil!', res.message, 'success'); loadDataAll(); } 
+        else { Swal.fire('Gagal', res.message, 'error'); }
+      }).catch(err => Swal.fire('Error', 'Gagal upload data.', 'error'));
+    };
+    reader.readAsArrayBuffer(file);
+    $('#fileExcel').val(''); 
+  }
 
   function hitungIMT() {
     let bb = parseFloat($('#inputBB').val()); let tb = parseFloat($('#inputTB').val());
@@ -515,7 +542,7 @@
   function loadDataMCUForPasien() {
     Swal.fire({ title: 'Menarik Riwayat...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     fetch(SCRIPT_URL + '?action=readMCU').then(r=>r.json()).then(res => {
-      mcuData = res.data || []; const myHistory = mcuData.filter(m => m.Nama.toLowerCase() === currentUser.name.toLowerCase());
+      mcuData = res.data || []; const myHistory = mcuData.filter(m => (m.Nama || "").toLowerCase() === currentUser.name.toLowerCase());
       if(myHistory.length > 0) { $('#pasienProfilInfo').text(`${myHistory[myHistory.length - 1].PosisiID || '-'} | Bagian: ${myHistory[myHistory.length - 1].Bagian || '-'}`); }
       Swal.close(); let histHtml = '';
       if(myHistory.length > 0) {
@@ -529,7 +556,7 @@
 
   function renderTablePasien() {
     if (dtPasien) dtPasien.destroy(); let html = '';
-    pasienData.forEach(r => { html += `<tr><td class="fw-bold">${r.Nama}</td><td>${r.TTL}</td><td>${r.PosisiID}</td><td>${r.Bagian}</td><td>${r.Password}</td><td><button class="btn btn-sm btn-warning" onclick="editPasien('${r.ID_Pasien}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="hapusData('deletePasien', '${r.ID_Pasien}')"><i class="fas fa-trash"></i></button></td></tr>`; });
+    pasienData.forEach(r => { html += `<tr><td class="fw-bold">${r.Nama||'-'}</td><td>${r.TTL||'-'}</td><td>${r.PosisiID||'-'}</td><td>${r.Bagian||'-'}</td><td>${r.Password||'-'}</td><td><button class="btn btn-sm btn-warning" onclick="editPasien('${r.ID_Pasien}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="hapusData('deletePasien', '${r.ID_Pasien}')"><i class="fas fa-trash"></i></button></td></tr>`; });
     $('#bodyPasien').html(html); dtPasien = $('#tablePasien').DataTable({ responsive: true });
   }
 
@@ -551,21 +578,19 @@
 
   function openModalPasien() { resetFormPasien(); const myModal = new bootstrap.Modal(document.getElementById('modalPasien')); myModal.show(); }
 
-  $('#formPasien').on('submit', function(e) { 
-    e.preventDefault(); 
-    postData('savePasien', Object.fromEntries(new FormData(e.target).entries()), () => { 
+  function executeFormPasien() { 
+    postData('savePasien', Object.fromEntries(new FormData(document.getElementById('formPasien')).entries()), () => { 
         const modalElement = document.getElementById('modalPasien');
         const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
         modalInstance.hide(); loadDataAll(); 
     }); 
-  });
+  }
 
-  $('#mcuForm').on('submit', function(e) { 
-    e.preventDefault(); 
-    postData('saveMCU', Object.fromEntries(new FormData(e.target).entries()), () => { 
+  function executeFormMCU() { 
+    postData('saveMCU', Object.fromEntries(new FormData(document.getElementById('mcuForm')).entries()), () => { 
       resetFormMCU(); switchTab('viewRekap', $('.nav-link').eq(2)); loadDataAll(); 
     }); 
-  });
+  }
   
   function postData(action, dataObj, callback) {
     Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
