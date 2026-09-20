@@ -429,29 +429,49 @@
   const SCRIPT_URL = '/api';
   let mcuData = [], pasienData = [], dokterData = [], dtRekap, dtPasien, currentUser = {};
 
-  $(document).ready(() => { 
+  $(document).ready(function() { 
     try {
       const savedUser = localStorage.getItem('loggedUser'); 
       if(savedUser) { currentUser = JSON.parse(savedUser); setupDashboard(); } 
     } catch(err) { localStorage.removeItem('loggedUser'); }
-  });
 
-  function executeLogin() {
-    const role = $('#logRole').val(), user = $('#logUser').val(), pass = $('#logPass').val();
-    Swal.fire({ title: 'Otentikasi Akun...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-    
-    fetch(SCRIPT_URL, { 
-      method: 'POST', 
-      body: JSON.stringify({ action: 'login', role: role, user: user, pass: pass }), 
-      headers: { 'Content-Type': 'application/json' } 
-    }).then(res => res.json()).then(res => {
-      if(res.status === 'success') { 
-        currentUser = { role: res.role, name: res.name, id: res.id }; 
-        localStorage.setItem('loggedUser', JSON.stringify(currentUser)); 
-        Swal.close(); setupDashboard(); 
-      } else { Swal.fire('Gagal', res.message, 'warning'); }
-    }).catch(err => Swal.fire('Error', 'Gagal memanggil API Vercel.', 'error'));
-  }
+    // --- 1. EVENT LISTENER LOGIN ---
+    $('#loginForm').on('submit', function(e) {
+      e.preventDefault(); 
+      const role = $('#logRole').val(), user = $('#logUser').val(), pass = $('#logPass').val();
+      Swal.fire({ title: 'Otentikasi Akun...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      
+      fetch(SCRIPT_URL, { 
+        method: 'POST', 
+        body: JSON.stringify({ action: 'login', role: role, user: user, pass: pass }), 
+        headers: { 'Content-Type': 'application/json' } 
+      }).then(res => res.json()).then(res => {
+        if(res.status === 'success') { 
+          currentUser = { role: res.role, name: res.name, id: res.id }; 
+          localStorage.setItem('loggedUser', JSON.stringify(currentUser)); 
+          Swal.close(); setupDashboard(); 
+        } else { Swal.fire('Gagal', res.message, 'warning'); }
+      }).catch(err => Swal.fire('Error', 'Gagal memanggil API Vercel.', 'error'));
+    });
+
+    // --- 2. EVENT LISTENER FORM MCU ---
+    $('#mcuForm').on('submit', function(e) { 
+      e.preventDefault(); 
+      postData('saveMCU', Object.fromEntries(new FormData(this).entries()), () => { 
+        resetFormMCU(); switchTab('viewRekap', $('.nav-link').eq(2)); loadDataAll(); 
+      }); 
+    });
+
+    // --- 3. EVENT LISTENER FORM PASIEN ---
+    $('#formPasien').on('submit', function(e) { 
+      e.preventDefault(); 
+      postData('savePasien', Object.fromEntries(new FormData(this).entries()), () => { 
+          const modalElement = document.getElementById('modalPasien');
+          const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+          modalInstance.hide(); loadDataAll(); 
+      }); 
+    });
+  });
 
   function logout() { localStorage.removeItem('loggedUser'); location.reload(); }
 
@@ -578,20 +598,6 @@
 
   function openModalPasien() { resetFormPasien(); const myModal = new bootstrap.Modal(document.getElementById('modalPasien')); myModal.show(); }
 
-  function executeFormPasien() { 
-    postData('savePasien', Object.fromEntries(new FormData(document.getElementById('formPasien')).entries()), () => { 
-        const modalElement = document.getElementById('modalPasien');
-        const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
-        modalInstance.hide(); loadDataAll(); 
-    }); 
-  }
-
-  function executeFormMCU() { 
-    postData('saveMCU', Object.fromEntries(new FormData(document.getElementById('mcuForm')).entries()), () => { 
-      resetFormMCU(); switchTab('viewRekap', $('.nav-link').eq(2)); loadDataAll(); 
-    }); 
-  }
-  
   function postData(action, dataObj, callback) {
     Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: action, data: dataObj }), headers: { 'Content-Type': 'application/json' } }).then(res => res.json())
