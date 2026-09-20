@@ -21,46 +21,29 @@
     .hero-bg { background: linear-gradient(rgba(0, 137, 123, 0.8), rgba(0, 77, 64, 0.9)), url('https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat; }
     .riwayat-card { border-left: 4px solid var(--primary-color); transition: transform 0.2s; }
 
-    /* PENGATURAN CETAK (PRINT) 2 HALAMAN PAS */
     @media print {
       @page { margin: 8mm; size: A4 portrait; }
       body { background-color: #fff !important; margin: 0; padding: 0; }
-      
       #loginView, #appView, .navbar, .no-print { display: none !important; }
-      
-      #printArea { 
-        display: block !important; 
-        position: static !important; 
-        width: 100%; 
-        color: black !important; 
-        font-family: 'Times New Roman', serif; 
-      }
-      
+      #printArea { display: block !important; position: static !important; width: 100%; color: black !important; font-family: 'Times New Roman', serif; }
       table.report-container { width: 100%; border-collapse: collapse; }
       thead.report-header { display: table-header-group; }
       tfoot.report-footer { display: table-footer-group; }
-      
       .kop-surat-img { width: 100%; max-height: 105px; object-fit: contain; border-bottom: 2px solid #000; margin-bottom: 5px; padding-bottom: 3px; }
-      
       .title-container { position: relative; text-align: center; margin-bottom: 10px; }
       .title-section { font-weight: bold; font-size: 13pt; text-decoration: underline; margin: 0; padding-top: 3px; }
       .no-periksa-box { position: absolute; right: 0; top: 0; border: 2px solid black; padding: 3px 10px; font-weight: bold; font-size: 11pt; }
       
       .bio-grid { display: grid; grid-template-columns: 130px 10px auto; row-gap: 2px; margin-bottom: 10px; font-size: 10.5pt; }
-      
       .print-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 10.5pt !important; }
       .print-table td, .print-table th { border: 1px solid black; padding: 3px 5px; vertical-align: top; }
       .print-table tr { page-break-inside: avoid; }
       .print-table .section-header { font-weight: bold; background-color: #f8f8f8 !important; -webkit-print-color-adjust: exact; text-transform: uppercase; text-align: center; }
-      
       .lab-table { font-size: 8pt !important; margin-bottom: 6px; }
       .lab-table td, .lab-table th { padding: 1.5px 3px; line-height: 1.05; }
-      
       .nested-align-table { width: 100%; border-collapse: collapse; }
       .nested-align-table td { border: none !important; padding: 1px 3px !important; vertical-align: top; }
-      
       .page-break-tbody { page-break-before: always !important; break-before: page !important; }
-      
       .ttd-section { margin-top: 5px; display: flex; justify-content: space-between; page-break-inside: avoid; font-size: 10pt; }
       .catatan-box { border: 1px solid black; width: 200px; height: 50px; padding: 3px; }
       .footer-print { text-align: center; font-size: 8.5pt; font-style: italic; color: #555; margin-top: 3px; border-top: 1px dashed #ccc; padding-top: 2px; }
@@ -123,7 +106,6 @@
   </nav>
 
   <div class="container-fluid mt-4 mb-5 px-4 no-print">
-    <!-- DASHBOARD WELCOME ALERT -->
     <div class="alert shadow-sm border-0 d-flex align-items-center mb-4 text-white rounded-4" style="background: var(--primary-color);">
       <i class="fas fa-stethoscope fs-1 me-3 ps-2 opacity-75"></i>
       <div><h5 class="mb-1 fw-bold" id="dashWelcome">Selamat Datang</h5><small class="opacity-100 text-light" id="dashSubtitle">Kelola rekam medis MCU dengan teliti.</small></div>
@@ -135,16 +117,11 @@
         <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="fas fa-users me-2"></i>Database Akun Pasien</span>
           <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-success" onclick="downloadTemplate()"><i class="fas fa-download"></i> Unduh Template</button>
-            <label class="btn btn-sm btn-outline-primary mb-0" style="cursor:pointer;">
-              <i class="fas fa-upload"></i> Upload Excel
-              <input type="file" id="uploadExcel" accept=".xlsx, .xls" class="d-none" onchange="uploadTemplate(event)">
-            </label>
             <button class="btn btn-sm btn-primary" onclick="openModalPasien()"><i class="fas fa-plus"></i> Registrasi Baru</button>
           </div>
         </div>
         <div class="card-body">
-          <div class="table-responsive"><table id="tablePasien" class="table table-hover w-100" style="font-size:14px"><thead class="table-light"><tr><th>Nama</th><th>TTL</th><th>ID/Posisi</th><th>Bagian</th><th>Password</th><th>Aksi</th></tr></thead><tbody id="bodyPasien"></tbody></table></div>
+          <div class="table-responsive"><table id="tablePasien" class="table table-hover w-100" style="font-size:14px"><thead class="table-light"><tr><th>Nama</th><th>Tgl Lahir</th><th>ID/Posisi</th><th>Bagian</th><th>Password</th><th>Aksi</th></tr></thead><tbody id="bodyPasien"></tbody></table></div>
         </div>
       </div>
     </div>
@@ -167,7 +144,10 @@
                 </div>
                 <div class="mb-3"><label class="small fw-bold text-primary">Ketik/Pilih Nama Pasien (Auto-fill)</label><input type="text" class="form-control bg-kuning" id="inputNamaFilter" list="pasienList" oninput="autoFillPasien()"><datalist id="pasienList"></datalist><input type="hidden" name="Nama" id="inputNama"></div>
                 <div class="row g-2 mb-2"><div class="col-6"><label class="small">No Periksa</label><input type="text" class="form-control form-control-sm" name="NoPeriksa" required></div><div class="col-6"><label class="small">Tgl Periksa</label><input type="date" class="form-control form-control-sm" name="TglPeriksa" required></div></div>
-                <div class="mb-2"><label class="small">Tempat/Tgl Lahir</label><input type="text" class="form-control form-control-sm bg-light" name="TTL" readonly></div>
+                
+                <!-- SPLIT TEMPAT & TANGGAL LAHIR -->
+                <div class="row g-2 mb-2"><div class="col-6"><label class="small">Tempat Lahir</label><input type="text" class="form-control form-control-sm bg-light" name="TempatLahir" readonly></div><div class="col-6"><label class="small">Tanggal Lahir</label><input type="date" class="form-control form-control-sm bg-light" name="TglLahir" readonly></div></div>
+                
                 <div class="row g-2 mb-2"><div class="col-6"><label class="small">Posisi / ID</label><input type="text" class="form-control form-control-sm bg-light" name="PosisiID" readonly></div><div class="col-6"><label class="small">Bagian</label><input type="text" class="form-control form-control-sm bg-light" name="Bagian" readonly></div></div>
                 <div class="mb-3"><label class="small">Gender</label><input type="text" class="form-control form-control-sm bg-light" name="Gender" readonly></div>
 
@@ -178,7 +158,6 @@
                 <div class="mb-2"><label class="small">R. Penyakit Keluarga</label><input type="text" class="form-control form-control-sm" name="RKeluarga" value="-"></div>
                 <div class="mb-3"><label class="small">Riwayat Alergi</label><select class="form-select form-select-sm bg-kuning" name="RAlergi"><option value="-">-</option><option>TIDAK ADA</option><option>ADA</option></select></div>
                 
-                <!-- NEW ORDER: BB, TB, IMT | Tempt, ButaWarna | Tensi, Icterus, Cyanosis | Nadi, Anemis -->
                 <div class="row g-2 mb-2">
                   <div class="col-4"><label class="small">BB (Kg)</label><input type="number" step="any" class="form-control form-control-sm" name="BB" oninput="kalkulasiIMT()"></div>
                   <div class="col-4"><label class="small">TB (cm)</label><input type="number" step="any" class="form-control form-control-sm" name="TB" oninput="kalkulasiIMT()"></div>
@@ -197,7 +176,6 @@
                   <div class="col-6"><label class="small">Nadi (x/m)</label><input type="text" class="form-control form-control-sm" name="Nadi"></div>
                   <div class="col-6"><label class="small">Anemis</label><select class="form-select form-select-sm bg-kuning" name="Anemis"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div>
                 </div>
-
               </div>
 
               <div class="col-md-6">
@@ -207,7 +185,6 @@
                 <div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">Telinga Dengar (Ka/Ki)</label><div class="input-group input-group-sm"><select class="form-select bg-kuning" name="TelingaDengarKa"><option value="-">-</option><option>NORMAL</option><option>GANGGUAN</option></select><select class="form-select bg-kuning" name="TelingaDengarKi"><option value="-">-</option><option>NORMAL</option><option>GANGGUAN</option></select></div></div><div class="col-6"><label class="small text-muted">Liang/Cerumen (Ka/Ki)</label><div class="input-group input-group-sm"><select class="form-select bg-kuning" name="TelingaLiangKa"><option value="-">-</option><option>BERSIH</option><option>KOTOR</option></select><select class="form-select bg-kuning" name="TelingaLiangKi"><option value="-">-</option><option>BERSIH</option><option>KOTOR</option></select></div></div></div>
                 <div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">Gigi</label><select class="form-select form-select-sm bg-kuning" name="Gigi"><option value="-">-</option><option>Normal</option><option>Berlubang</option><option>Patah/Ompong</option></select></div><div class="col-6"><label class="small text-muted">Lidah</label><select class="form-select form-select-sm bg-kuning" name="Lidah"><option value="-">-</option><option>Normal/Bersih</option><option>Kotor</option></select></div><div class="col-6"><label class="small text-muted">Tongsil</label><select class="form-select form-select-sm bg-kuning" name="Tongsil"><option value="-">-</option><option>NORMAL</option><option>Tidak Normal</option></select></div><div class="col-6"><label class="small text-muted">Nafas Frekuensi</label><input type="text" class="form-control form-control-sm" name="Nafas"></div><div class="col-12"><label class="small text-muted">Leher</label><input type="text" class="form-control form-control-sm" name="Leher" value="KELENJAR LIMFA, GONDOK TIDAK MEMBESAR"></div></div>
                 <div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">Abd Lingkar Perut</label><input type="text" class="form-control form-control-sm" name="AbdLingkar" placeholder="cm"></div><div class="col-6"><label class="small text-muted">Abd Peristaltik</label><select class="form-select form-select-sm bg-kuning" name="AbdPeristaltik"><option value="-">-</option><option>NORMAL</option><option>Tidak Normal</option></select></div><div class="col-6"><label class="small text-muted">Genetalia & Anus</label><input type="text" class="form-control form-control-sm" name="Genetalia" value="-"></div><div class="col-6"><label class="small text-muted">Kulit</label><input type="text" class="form-control form-control-sm" name="Kulit" value="-"></div><div class="col-6"><label class="small text-muted">Tulang Belakang</label><select class="form-select form-select-sm bg-kuning" name="Tulang"><option value="-">-</option><option>Lurus/Batas Wajar</option><option>Tidak Normal</option></select></div><div class="col-6"><label class="small text-muted">Extrimitas Atas</label><input type="text" class="form-control form-control-sm" name="ExtAtas" value="DALAM BATAS NORMAL"></div><div class="col-12"><label class="small text-muted">Extrimitas Bawah</label><input type="text" class="form-control form-control-sm" name="ExtBawah" value="DALAM BATAS NORMAL"></div></div>
-                
                 <h6 class="text-secondary fw-bold bg-light p-2 rounded mt-3">Penunjang Umum</h6>
                 <div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">Radiologi</label><input type="text" class="form-control form-control-sm" name="Radiologi" value="TIDAK DILAKUKAN PEMERIKSAAN"></div><div class="col-6"><label class="small text-muted">EKG</label><select class="form-select form-select-sm bg-kuning" name="EKG"><option value="-">-</option><option>NORMAL</option><option>Tidak Normal</option></select></div></div>
               </div>
@@ -228,7 +205,6 @@
                 <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Lekosit</span><input type="text" class="form-control bg-kuning-light" name="Lab_Lekosit"></div>
                 <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Jenis Lekosit</span><input type="text" class="form-control bg-kuning-light" name="Lab_JenisLekosit"></div>
                 <div class="input-group input-group-sm mb-3"><span class="input-group-text w-50">Laju Endap Darah</span><input type="text" class="form-control bg-kuning-light" name="Lab_LED"></div>
-
                 <h6 class="fw-bold text-dark border-bottom pb-1">MIKROBIOLOGI</h6>
                 <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Fiksasi Sputum BTA</span><select class="form-select bg-kuning" name="Mikro_BTA"><option value="-">-</option><option>Negatif</option><option>Positif</option></select></div>
                 <div class="input-group input-group-sm mb-3"><span class="input-group-text w-50">MH</span><select class="form-select bg-kuning" name="Mikro_MH"><option value="-">-</option><option>Negatif</option><option>Positif</option></select></div>
@@ -246,7 +222,6 @@
                 <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Nitrit</span><select class="form-select bg-kuning" name="Uri_Nitrit"><option value="-">-</option><option>Negatif</option><option>Positif</option></select></div>
                 <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Lekosit (Urine)</span><select class="form-select bg-kuning" name="Uri_Lekosit"><option value="-">-</option><option>Negatif</option><option>Positif</option></select></div>
                 <div class="input-group input-group-sm mb-3"><span class="input-group-text w-50">Eritrosit (Urine)</span><select class="form-select bg-kuning" name="Uri_Eritrosit"><option value="-">-</option><option>Negatif</option><option>Positif</option></select></div>
-                
                 <h6 class="fw-bold text-dark border-bottom pb-1">SEDIMEN</h6>
                 <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Eritrosit</span><input type="text" class="form-control bg-kuning-light" name="Sed_Eritrosit"></div>
                 <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Leukosit</span><input type="text" class="form-control bg-kuning-light" name="Sed_Lekosit"></div>
@@ -261,7 +236,6 @@
                 <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Gula Darah Puasa</span><input type="text" class="form-control bg-kuning-light" name="Kim_GDP"></div>
                 <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Gula Darah 2j PP</span><input type="text" class="form-control bg-kuning-light" name="Kim_GD2PP"></div>
                 <div class="input-group input-group-sm mb-3"><span class="input-group-text w-50">Gula Darah Acak</span><input type="text" class="form-control bg-kuning-light" name="Kim_GDA"></div>
-
                 <h6 class="fw-bold text-dark border-bottom pb-1">LEMAK & HATI & GINJAL</h6>
                 <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Cholesterol Total</span><input type="text" class="form-control bg-kuning-light" name="Lemak_Chol"></div>
                 <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Trigliserida</span><input type="text" class="form-control bg-kuning-light" name="Lemak_Trig"></div>
@@ -270,7 +244,6 @@
                 <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Ureum</span><input type="text" class="form-control bg-kuning-light" name="Ginjal_Ureum"></div>
                 <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Kreatinin</span><input type="text" class="form-control bg-kuning-light" name="Ginjal_Kreatinin"></div>
                 <div class="input-group input-group-sm mb-3"><span class="input-group-text w-50">Asam Urat</span><input type="text" class="form-control bg-kuning-light" name="Ginjal_AsamUrat"></div>
-
                 <h6 class="fw-bold text-dark border-bottom pb-1">SEROLOGI / LAIN-LAIN</h6>
                 <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Tes Kehamilan</span><input type="text" class="form-control bg-kuning-light" name="Sero_Hamil"></div>
                 <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Golongan Darah</span><input type="text" class="form-control bg-kuning-light" name="Sero_GolDarah"></div>
@@ -303,7 +276,7 @@
     <!-- 3. VIEW REKAP DATABASE MCU -->
     <div id="viewRekap" class="d-none tab-view">
       <div class="card shadow-sm">
-        <div class="card-header d-flex justify-content-between align-items-center"><span><i class="fas fa-database me-2"></i>Rekap Database MCU</span><button class="btn btn-sm btn-outline-primary" onclick="loadData()"><i class="fas fa-sync-alt"></i> Refresh Data</button></div>
+        <div class="card-header d-flex justify-content-between align-items-center"><span><i class="fas fa-database me-2"></i>Rekap Database MCU</span><button class="btn btn-sm btn-outline-primary" onclick="loadDataAll()"><i class="fas fa-sync-alt"></i> Refresh Data</button></div>
         <div class="card-body">
           <div class="table-responsive"><table id="tableRekap" class="table table-hover align-middle w-100" style="font-size: 13px;"><thead class="table-light"><tr><th>No</th><th>Tgl</th><th>Nama Pasien</th><th>Bagian</th><th>Diagnosa</th><th class="text-center no-export">Aksi</th></tr></thead><tbody id="bodyRekap"></tbody></table></div>
         </div>
@@ -336,7 +309,8 @@
         <div class="modal-body">
           <input type="hidden" name="ID_Pasien" id="ID_Pasien">
           <div class="mb-2"><label>Nama Lengkap</label><input type="text" class="form-control form-control-sm" name="Nama" required></div>
-          <div class="mb-2"><label>Tempat/Tgl Lahir</label><input type="text" class="form-control form-control-sm" name="TTL" required></div>
+          <div class="mb-2"><label>Tempat Lahir</label><input type="text" class="form-control form-control-sm" name="TempatLahir"></div>
+          <div class="mb-2"><label>Tanggal Lahir</label><input type="date" class="form-control form-control-sm" name="TglLahir"></div>
           <div class="mb-2"><label>No Identitas / Posisi</label><input type="text" class="form-control form-control-sm" name="PosisiID" required></div>
           <div class="mb-2"><label>Gender</label><select class="form-select form-select-sm" name="Gender"><option>Male</option><option>Female</option></select></div>
           <div class="mb-2"><label>Bagian</label><input type="text" class="form-control form-control-sm" name="Bagian"></div>
@@ -366,7 +340,9 @@
           
           <div class="bio-grid">
             <div class="fw-bold">Nama</div><div>:</div><div id="p_nama" class="fw-bold"></div>
-            <div class="fw-bold">Tempat/Tgl. Lahir</div><div>:</div><div id="p_ttl"></div>
+            <div class="fw-bold">Tempat Lahir</div><div>:</div><div id="p_tempat_lahir"></div>
+            <div class="fw-bold">Tanggal Lahir</div><div>:</div><div id="p_tgl_lahir"></div>
+            <div class="fw-bold">Usia</div><div>:</div><div id="p_usia" class="fw-bold text-primary"></div>
             <div class="fw-bold">Posisi/ID</div><div>:</div><div id="p_posisi"></div>
             <div class="fw-bold">Gender</div><div>:</div><div id="p_gender"></div>
             <div class="fw-bold">Bagian</div><div>:</div><div id="p_bagian"></div>
@@ -386,8 +362,6 @@
                 </table>
               </td>
             </tr>
-            
-            <!-- NEW ORDER IN PRINT -->
             <tr>
               <td width="25%" style="padding: 0; vertical-align: top;">
                 <table class="nested-align-table">
@@ -416,7 +390,6 @@
                 </table>
               </td>
             </tr>
-
             <tr>
               <td colspan="4" style="padding: 0;">
                 <table class="nested-align-table">
@@ -448,7 +421,6 @@
     <tbody class="report-body page-break-tbody">
       <tr>
         <td style="border: none; padding-top: 10px;">
-          <!-- TABLE LAB (Same as old, just filling data) -->
           <table class="print-table lab-table w-100">
             <thead>
               <tr><th colspan="6" class="section-header">HASIL PEMERIKSAAN LABORATORIUM</th></tr>
@@ -515,21 +487,34 @@
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<!-- Penambahan library Excel SheetJS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
-  // URL API Vercel (ubah sesuai deploy Vercel Anda, biarkan /api jika deploy 1 project)
   const API_URL = '/api';
-
   let mcuData = [], pasienData = [], dokterData = [], dtRekap, dtPasien, currentUser = {};
 
   $(document).ready(() => { 
     const savedUser = sessionStorage.getItem('loggedUser'); 
-    if(savedUser) { currentUser = JSON.parse(savedUser); setupDashboard(); } 
+    if(savedUser) { 
+      currentUser = JSON.parse(savedUser); 
+      $('#loginView').addClass('d-none'); 
+      $('#appView').removeClass('d-none');
+      loadDataAll(true); 
+    } 
   });
 
-  // ===== IMT CALCULATION =====
+  function hitungUsia(tglLahir, tglPeriksa) {
+    if(!tglLahir || !tglPeriksa) return '-';
+    let birthDate = new Date(tglLahir);
+    let checkDate = new Date(tglPeriksa);
+    let age = checkDate.getFullYear() - birthDate.getFullYear();
+    let m = checkDate.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && checkDate.getDate() < birthDate.getDate())) {
+      age--; m += 12;
+    }
+    return `${age} Tahun ${m} Bulan`;
+  }
+
   function kalkulasiIMT() {
     let bb = parseFloat($('input[name="BB"]').val());
     let tb = parseFloat($('input[name="TB"]').val());
@@ -537,88 +522,63 @@
       let tbm = tb / 100;
       let imt = bb / (tbm * tbm);
       let keterangan = "";
-      
       if(imt <= 18.4) keterangan = " (Berat Badan Kurang)";
       else if (imt >= 18.5 && imt <= 24.9) keterangan = " (Berat Badan Ideal)";
       else if (imt >= 25 && imt <= 29.9) keterangan = " (Berat Badan Lebih)";
       else if (imt >= 30 && imt <= 39.9) keterangan = " (Gemuk)";
       else if (imt >= 40) keterangan = " (Sangat Gemuk)";
-
       $('input[name="IMT"]').val(imt.toFixed(1) + keterangan);
-    } else {
-      $('input[name="IMT"]').val('');
-    }
+    } else { $('input[name="IMT"]').val(''); }
   }
 
-  // ===== EXCEL IMPORT & EXPORT PASIEN =====
-  function downloadTemplate() {
-    const ws_data = [
-      ["Nama", "TTL", "PosisiID", "Gender", "Bagian", "Password"],
-      ["Budi Contoh", "Gresik, 01 Jan 1990", "12345", "Male", "Produksi", "12345"]
-    ];
-    const ws = XLSX.utils.aoa_to_sheet(ws_data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "TemplatePasien");
-    XLSX.writeFile(wb, "Template_Data_Pasien.xlsx");
-  }
-
-  function uploadTemplate(e) {
-    const file = e.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = function(evt) {
-      const data = evt.target.result;
-      const workbook = XLSX.read(data, {type: 'binary'});
-      const firstSheet = workbook.SheetNames[0];
-      const excelRows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
-      
-      if(excelRows.length > 0) {
-        postData('savePasienBatch', excelRows, () => {
-          $('#uploadExcel').val('');
-          loadDataAll();
-        });
-      } else {
-        Swal.fire('Error', 'File Excel kosong atau format tidak sesuai.', 'error');
-      }
-    };
-    reader.readAsBinaryString(file);
-  }
-
+  // OPTIMASI: Login diproses bersamaan pengambilan data
   function handleLogin(e) {
     e.preventDefault(); 
     const role = $('#logRole').val(), user = $('#logUser').val(), pass = $('#logPass').val();
-    Swal.fire({ title: 'Otentikasi Akun...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    Swal.fire({ title: 'Masuk & Memuat Data...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     
-    fetch(API_URL, { 
-      method: 'POST', 
-      body: JSON.stringify({ action: 'login', role: role, user: user, pass: pass }), 
-      headers: { 'Content-Type': 'application/json' } 
-    }).then(res => res.json()).then(res => {
+    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', role: role, user: user, pass: pass }), headers: { 'Content-Type': 'application/json' } })
+    .then(res => res.json()).then(res => {
       if(res.status === 'success') { 
         currentUser = { role: res.role, name: res.name, id: res.id }; 
         sessionStorage.setItem('loggedUser', JSON.stringify(currentUser)); 
-        Swal.close(); setupDashboard(); 
+        
+        // Simpan bundle data dari respons login
+        if(res.dbData) {
+          mcuData = res.dbData.mcu || [];
+          pasienData = res.dbData.pasien || [];
+          dokterData = res.dbData.dokter || [];
+        }
+        
+        Swal.close(); 
+        $('#loginView').addClass('d-none'); $('#appView').removeClass('d-none');
+        setupDashboard(true); // pass true karena data sudah didapat
       } else { Swal.fire('Gagal', res.message, 'error'); }
     }).catch(err => Swal.fire('Error', 'Gagal terhubung ke Database.', 'error'));
   }
 
   function logout() { sessionStorage.removeItem('loggedUser'); location.reload(); }
 
-  function setupDashboard() {
-    $('#loginView').addClass('d-none'); $('#appView').removeClass('d-none'); $('#navUsername').text(currentUser.name);
+  // parameter hasData=true artinya tidak perlu memanggil fetch dari server lagi
+  function setupDashboard(hasData = false) {
+    $('#navUsername').text(currentUser.name);
     let tabs = '';
     if (currentUser.role === 'Admin') {
       $('#dashWelcome').text('Halo Administrator,'); $('#dashSubtitle').text('Akses penuh untuk mengelola data akun pasien dan rekam medis MCU.');
       tabs = `<li class="nav-item"><a class="nav-link text-white active" href="#" onclick="switchTab('viewPasien', this)">Data Pasien</a></li><li class="nav-item"><a class="nav-link text-white" href="#" onclick="switchTab('viewForm', this)">Formulir MCU</a></li><li class="nav-item"><a class="nav-link text-white" href="#" onclick="switchTab('viewRekap', this)">Rekap MCU</a></li>`;
-      loadDataAll(); switchTab('viewPasien', null, true);
+      if(!hasData) loadDataAll(); else populateUI();
+      switchTab('viewPasien', null, true);
     } else if (currentUser.role === 'Petugas') {
       $('#dashWelcome').text('Halo Petugas Medis,'); $('#dashSubtitle').text('Kelola input hasil Medical Check-Up dengan akurat.');
       tabs = `<li class="nav-item"><a class="nav-link text-white active" href="#" onclick="switchTab('viewForm', this)">Formulir MCU</a></li><li class="nav-item"><a class="nav-link text-white" href="#" onclick="switchTab('viewRekap', this)">Rekap MCU</a></li>`;
-      loadDataAll(); switchTab('viewForm', null, true);
+      if(!hasData) loadDataAll(); else populateUI();
+      switchTab('viewForm', null, true);
     } else if (currentUser.role === 'Pasien') {
       $('#dashWelcome').text('Halo, ' + currentUser.name); $('#dashSubtitle').text('Pantau riwayat rekam medis kesehatan Anda dengan transparan.');
       tabs = `<li class="nav-item"><a class="nav-link text-white active" href="#">Hasil MCU Saya</a></li>`;
-      $('#pasienProfilNama').text(currentUser.name); loadDataMCUForPasien(); switchTab('viewDashboardPasien', null, true);
+      $('#pasienProfilNama').text(currentUser.name); 
+      if(!hasData) { loadDataAll(false, true); } else { renderDashboardPasien(); }
+      switchTab('viewDashboardPasien', null, true);
     }
     $('#mainTabs').html(tabs);
   }
@@ -628,101 +588,55 @@
     if(el) { $('.nav-link').removeClass('active fw-bold'); $(el).addClass('active fw-bold'); } else if(isInit) {$('.nav-link').first().addClass('active fw-bold'); }
   }
 
-  // UBAH FUNGSI loadDataAll UNTUK LOADING SUPER CEPAT
-  function loadDataAll() {
-    Swal.fire({ title: 'Memuat Database...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-    
-    // Tarik semua tabel dalam 1 hit (sangat cepat)
-    fetch(API_URL + '?action=readAll')
-      .then(r => r.json())
-      .then(res => {
-        if(res.status === 'success') {
-          mcuData = res.data.mcu || [];
-          pasienData = res.data.pasien || [];
-          dokterData = res.data.dokter || [];
-          renderTablePasien(); 
-          renderTableRekap(); 
-          updateSelectPasien(); 
-          updateSelectDokter(); 
-          Swal.close();
-        } else {
-          Swal.fire('Error', 'Gagal memuat struktur data', 'error');
-        }
-      }).catch(err => {
+  function loadDataAll(setup = false, isPasienRole = false) {
+    Swal.fire({ title: 'Memuat Ulang Database...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    fetch(API_URL + '?action=readAll').then(r => r.json()).then(res => {
+      if(res.status === 'success') {
+        mcuData = res.data.mcu || []; pasienData = res.data.pasien || []; dokterData = res.data.dokter || [];
+        if(isPasienRole) { renderDashboardPasien(); } else { populateUI(); }
+        if(setup) setupDashboard(true);
         Swal.close();
-        console.error(err);
+      } else { Swal.fire('Error', 'Gagal memuat data', 'error'); }
+    }).catch(err => { Swal.close(); });
+  }
+
+  function populateUI() { renderTablePasien(); renderTableRekap(); updateSelectPasien(); updateSelectDokter(); }
+
+  function renderDashboardPasien() {
+    const myHistory = mcuData.filter(m => m.Nama.toLowerCase() === currentUser.name.toLowerCase());
+    if(myHistory.length > 0) { $('#pasienProfilInfo').text(`${myHistory[myHistory.length - 1]['PosisiID'] || '-'} | Bagian: ${myHistory[myHistory.length - 1].Bagian || '-'}`); }
+    let histHtml = '';
+    if(myHistory.length > 0) {
+      myHistory.reverse().forEach((h) => {
+        histHtml += `<div class="card riwayat-card mb-3 bg-white"><div class="card-body"><div class="d-flex justify-content-between align-items-center mb-2"><span class="badge bg-success px-2 py-1"><i class="fas fa-stethoscope"></i> No Periksa: ${h['NoPeriksa'] || '-'}</span><small class="text-muted fw-bold"><i class="fas fa-calendar-alt"></i> ${formatTanggalIndo(h['TglPeriksa'])}</small></div><div class="row mt-3"><div class="col-8"><h6 class="fw-bold text-dark mb-1">Diagnosa: ${h.Diagnosa || '-'}</h6><p class="small text-muted mb-0">Kesimpulan: <b>${h.Kesimpulan || '-'}</b></p></div><div class="col-4 d-flex align-items-center"><button class="btn btn-outline-primary btn-sm w-100 fw-bold" onclick="printData('${h.ID}')"><i class="fas fa-print"></i> Cetak PDF</button></div></div></div></div>`;
       });
-  }
-
-  // PASTIKAN FILTER HANYA MENGGUNAKAN NAMA
-  function updateSelectPasien() { 
-    let opts = ''; 
-    // Data list value murni menggunakan Nama
-    pasienData.forEach(p => { opts += `<option value="${p.Nama}">${p['Posisi/ID']} - ${p.Bagian}</option>`; }); 
-    $('#pasienList').html(opts); 
-  }
-
-  function autoFillPasien() {
-    const val = $('#inputNamaFilter').val(), p = pasienData.find(x => x.Nama === val), f = document.getElementById('mcuForm');
-    if(p) { 
-      f.Nama.value = p.Nama; 
-      $('#inputNama').val(p.Nama); 
-      f.TTL.value = p['Tempat/Tgl Lahir']; 
-      f.PosisiID.value = p['Posisi/ID']; 
-      f.Gender.value = p.Gender; 
-      f.Bagian.value = p.Bagian; 
-    } else { 
-      // Jika manual ketik nama, ID filter tetap pakai Nama
-      f.Nama.value = val; 
-      $('#inputNama').val(val); 
-      f.TTL.value = ''; f.PosisiID.value = ''; f.Gender.value = ''; f.Bagian.value = ''; 
-    }
-  }
-
-  // TAMBAHAN: Saat kosongkan form, filter nama ikut tersetel ulang
-  function resetFormMCU() { 
-    document.getElementById('mcuForm').reset(); 
-    document.getElementById('ID').value = ''; 
-    $('#inputNamaFilter').val(''); // Membersihkan kolom pencarian nama
-    $('#inputNama').val('');
-  }
-  function loadData() { loadDataAll(); }
-
-  function loadDataMCUForPasien() {
-    Swal.fire({ title: 'Menarik Riwayat...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-    fetch(API_URL + '?action=readMCU').then(r=>r.json()).then(res => {
-      mcuData = res.data || []; const myHistory = mcuData.filter(m => m.Nama.toLowerCase() === currentUser.name.toLowerCase());
-      if(myHistory.length > 0) { $('#pasienProfilInfo').text(`${myHistory[myHistory.length - 1]['PosisiID'] || '-'} | Bagian: ${myHistory[myHistory.length - 1].Bagian || '-'}`); }
-      Swal.close(); let histHtml = '';
-      if(myHistory.length > 0) {
-        myHistory.reverse().forEach((h) => {
-          histHtml += `<div class="card riwayat-card mb-3 bg-white"><div class="card-body"><div class="d-flex justify-content-between align-items-center mb-2"><span class="badge bg-success px-2 py-1"><i class="fas fa-stethoscope"></i> No Periksa: ${h['NoPeriksa'] || '-'}</span><small class="text-muted fw-bold"><i class="fas fa-calendar-alt"></i> ${formatTanggalIndo(h['TglPeriksa'])}</small></div><div class="row mt-3"><div class="col-8"><h6 class="fw-bold text-dark mb-1">Diagnosa: ${h.Diagnosa || '-'}</h6><p class="small text-muted mb-0">Kesimpulan: <b>${h.Kesimpulan || '-'}</b></p></div><div class="col-4 d-flex align-items-center"><button class="btn btn-outline-primary btn-sm w-100 fw-bold" onclick="printData('${h.ID}')"><i class="fas fa-print"></i> Cetak PDF</button></div></div></div></div>`;
-        });
-      } else { histHtml = `<div class="alert alert-warning text-center"><i class="fas fa-search mb-2 fs-3 d-block"></i> Rekam medis Anda belum tercatat.</div>`; }
-      $('#pasienHistoryContainer').html(histHtml);
-    });
+    } else { histHtml = `<div class="alert alert-warning text-center"><i class="fas fa-search mb-2 fs-3 d-block"></i> Rekam medis Anda belum tercatat.</div>`; }
+    $('#pasienHistoryContainer').html(histHtml);
   }
 
   function renderTablePasien() {
     if (dtPasien) dtPasien.destroy(); let html = '';
-    pasienData.forEach(r => { html += `<tr><td class="fw-bold">${r.Nama}</td><td>${r['Tempat/Tgl Lahir']}</td><td>${r['Posisi/ID']}</td><td>${r.Bagian}</td><td>${r.Password}</td><td><button class="btn btn-sm btn-warning" onclick="editPasien('${r.ID_Pasien}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="hapusData('deletePasien', '${r.ID_Pasien}')"><i class="fas fa-trash"></i></button></td></tr>`; });
+    pasienData.forEach(r => { html += `<tr><td class="fw-bold">${r.Nama}</td><td>${formatTanggalIndo(r.TglLahir)}</td><td>${r.PosisiID}</td><td>${r.Bagian}</td><td>${r.Password}</td><td><button class="btn btn-sm btn-warning" onclick="editPasien('${r.ID_Pasien}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="hapusData('deletePasien', '${r.ID_Pasien}')"><i class="fas fa-trash"></i></button></td></tr>`; });
     $('#bodyPasien').html(html); dtPasien = $('#tablePasien').DataTable({ responsive: true });
   }
 
   function renderTableRekap() {
     if (dtRekap) dtRekap.destroy(); let html = '';
-    mcuData.forEach(r => { html += `<tr><td><span class="badge bg-secondary">${r['NoPeriksa'] || ''}</span></td><td>${formatTanggalIndo(r['TglPeriksa']) || ''}</td><td class="fw-bold">${r['Nama'] || ''}</td><td>${r['Bagian'] || ''}</td><td>${r['Diagnosa'] || ''}</td><td class="text-center"><button class="btn btn-sm btn-success" onclick="printData('${r.ID}')"><i class="fas fa-print"></i></button> <button class="btn btn-sm btn-warning" onclick="editMCU('${r.ID}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="hapusData('deleteMCU', '${r.ID}')"><i class="fas fa-trash"></i></button></td></tr>`; });
-    $('#bodyRekap').html(html); dtRekap = $('#tableRekap').DataTable({ responsive: true, order: [[0, 'desc']], dom: 'Bfrtip', buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Export Rekap Excel', className: 'btn btn-success btn-sm mb-3 fw-bold', exportOptions: { columns: ':not(.no-export)' } } ] });
+    mcuData.forEach(r => { html += `<tr><td><span class="badge bg-secondary">${r.NoPeriksa || ''}</span></td><td>${formatTanggalIndo(r.TglPeriksa) || ''}</td><td class="fw-bold">${r.Nama || ''}</td><td>${r.Bagian || ''}</td><td>${r.Diagnosa || ''}</td><td class="text-center"><button class="btn btn-sm btn-success" onclick="printData('${r.ID}')"><i class="fas fa-print"></i></button> <button class="btn btn-sm btn-warning" onclick="editMCU('${r.ID}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="hapusData('deleteMCU', '${r.ID}')"><i class="fas fa-trash"></i></button></td></tr>`; });
+    $('#bodyRekap').html(html); dtRekap = $('#tableRekap').DataTable({ responsive: true, order: [[0, 'desc']], dom: 'Bfrtip', buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Export Excel', className: 'btn btn-success btn-sm mb-3 fw-bold', exportOptions: { columns: ':not(.no-export)' } } ] });
   }
 
   function updateSelectDokter() { let opts = '<option value="">-- Pilih Dokter --</option>'; dokterData.forEach(d => { opts += `<option value="${d.Nama}">${d.Nama}</option>`; }); $('#selectDokter').html(opts); }
   function autoFillDokter() { const val = $('#selectDokter').val(), d = dokterData.find(x => x.Nama === val); if(d) { $('#inputNipDokter').val(d.NIP); } else { $('#inputNipDokter').val(''); } }
 
-  function updateSelectPasien() { let opts = ''; pasienData.forEach(p => { opts += `<option value="${p.Nama}">${p['Posisi/ID']} - ${p.Bagian}</option>`; }); $('#pasienList').html(opts); }
+  function updateSelectPasien() { let opts = ''; pasienData.forEach(p => { opts += `<option value="${p.Nama}">${p.PosisiID} - ${p.Bagian}</option>`; }); $('#pasienList').html(opts); }
   function autoFillPasien() {
     const val = $('#inputNamaFilter').val(), p = pasienData.find(x => x.Nama === val), f = document.getElementById('mcuForm');
-    if(p) { f.Nama.value = p.Nama; $('#inputNama').val(p.Nama); f.TTL.value = p['Tempat/Tgl Lahir']; f.PosisiID.value = p['Posisi/ID']; f.Gender.value = p.Gender; f.Bagian.value = p.Bagian; } 
-    else { f.Nama.value = val; $('#inputNama').val(val); f.TTL.value = ''; f.PosisiID.value = ''; f.Gender.value = ''; f.Bagian.value = ''; }
+    if(p) { 
+      f.Nama.value = p.Nama; $('#inputNama').val(p.Nama); f.TempatLahir.value = p.TempatLahir; f.TglLahir.value = p.TglLahir;
+      f.PosisiID.value = p.PosisiID; f.Gender.value = p.Gender; f.Bagian.value = p.Bagian; 
+    } 
+    else { f.Nama.value = val; $('#inputNama').val(val); f.TempatLahir.value = ''; f.TglLahir.value = ''; f.PosisiID.value = ''; f.Gender.value = ''; f.Bagian.value = ''; }
   }
 
   function openModalPasien() { resetFormPasien(); const myModal = new bootstrap.Modal(document.getElementById('modalPasien')); myModal.show(); }
@@ -732,8 +646,7 @@
     postData('savePasien', Object.fromEntries(new FormData(e.target).entries()), () => { 
         const modalElement = document.getElementById('modalPasien');
         const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
-        modalInstance.hide(); 
-        loadDataAll(); 
+        modalInstance.hide(); loadDataAll(); 
     }); 
   }
 
@@ -746,38 +659,20 @@
   
   function postData(action, dataObj, callback) {
     Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-    fetch(API_URL, { 
-      method: 'POST', 
-      body: JSON.stringify({ action: action, data: dataObj }), 
-      headers: { 'Content-Type': 'application/json' } 
-    }).then(res => res.json())
-      .then(res => { 
-        if(res.status === 'success') { Swal.fire('Berhasil!', res.message, 'success'); callback(); } 
-        else { Swal.fire('Error', res.message, 'error'); } 
-      })
+    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: action, data: dataObj }), headers: { 'Content-Type': 'application/json' } })
+      .then(res => res.json()).then(res => { if(res.status === 'success') { Swal.fire('Berhasil!', res.message, 'success'); callback(); } else { Swal.fire('Error', res.message, 'error'); } })
       .catch(err => { Swal.fire('Error', 'Gagal menyimpan ke server.', 'error'); callback(); });
   }
 
-  function hapusData(action, id) { 
-    Swal.fire({ title: 'Hapus Data?', icon: 'warning', showCancelButton: true }).then((r) => { 
-      if(r.isConfirmed) { 
-        fetch(API_URL, { 
-          method: 'POST', 
-          body: JSON.stringify({ action: action, id: id }),
-          headers: { 'Content-Type': 'application/json' }
-        }).then(res=>res.json()).then(()=>loadDataAll()); 
-      } 
-    }); 
-  }
+  function hapusData(action, id) { Swal.fire({ title: 'Hapus Data?', icon: 'warning', showCancelButton: true }).then((r) => { if(r.isConfirmed) { fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: action, id: id }), headers: { 'Content-Type': 'application/json' } }).then(res=>res.json()).then(()=>loadDataAll()); } }); }
 
   function editPasien(id) { 
     const p = pasienData.find(x => x.ID_Pasien == id); 
     if(p) { 
         const f = document.getElementById('formPasien'); 
-        f.ID_Pasien.value = p.ID_Pasien; f.Nama.value = p.Nama; f.TTL.value = p['Tempat/Tgl Lahir']; 
-        f.PosisiID.value = p['Posisi/ID']; f.Gender.value = p.Gender; f.Bagian.value = p.Bagian; f.Password.value = p.Password; 
-        const myModal = new bootstrap.Modal(document.getElementById('modalPasien'));
-        myModal.show(); 
+        f.ID_Pasien.value = p.ID_Pasien; f.Nama.value = p.Nama; f.TempatLahir.value = p.TempatLahir; f.TglLahir.value = p.TglLahir; 
+        f.PosisiID.value = p.PosisiID; f.Gender.value = p.Gender; f.Bagian.value = p.Bagian; f.Password.value = p.Password; 
+        const myModal = new bootstrap.Modal(document.getElementById('modalPasien')); myModal.show(); 
     } 
   }
   
@@ -786,17 +681,14 @@
     if(data) {
       switchTab('viewForm', $('.nav-link').eq(1)); 
       const f = document.getElementById('mcuForm');$('#inputNamaFilter').val(data['Nama']); 
-      Object.keys(data).forEach(k => { 
-        if(f[k]) f[k].value = data[k]; 
-      });
+      Object.keys(data).forEach(k => { if(f[k]) f[k].value = data[k]; });
       f.ID.value = data.ID; $('#inputNama').val(data['Nama']); 
-      kalkulasiIMT(); // Hitung ulang untuk tampilan
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      kalkulasiIMT(); window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
   function resetFormPasien() { document.getElementById('formPasien').reset(); document.getElementById('ID_Pasien').value = ''; }
-  function resetFormMCU() { document.getElementById('mcuForm').reset(); document.getElementById('ID').value = ''; $('#inputNamaFilter').val(''); }
+  function resetFormMCU() { document.getElementById('mcuForm').reset(); document.getElementById('ID').value = ''; $('#inputNamaFilter').val(''); $('#inputNama').val(''); }
 
   function formatTanggalIndo(tglStr) {
     if (!tglStr) return '-';
@@ -807,35 +699,39 @@
   }
 
   function printData(id) {
-  const d = mcuData.find(row => row.ID == id);
-  if(d) {
-    $('#p_no').text(d['NoPeriksa'] || '-'); $('#p_nama').text(d['Nama'] || '-'); $('#p_ttl').text(d['TTL'] || '-'); $('#p_posisi').text(d['PosisiID'] || '-'); $('#p_gender').text(d['Gender'] || '-'); $('#p_bagian').text(d['Bagian'] || '-');
-    $('#p_kebersihan').text(d['Kebersihan'] || '-'); $('#p_kepala').text(d['KepalaMuka'] || '-'); $('#p_keluhan').text(d['Keluhan'] || '-'); $('#p_rpenyakit').text(d['RPenyakit'] || '-'); $('#p_rkeluarga').text(d['RKeluarga'] || '-'); $('#p_ralergi').text(d['RAlergi'] || '-');
-    $('#p_tb').text(d['TB'] || '-'); $('#p_bb').text(d['BB'] || '-'); $('#p_tensi').text(d['Tensi'] || '-'); $('#p_nadi').text(d['Nadi'] || '-'); $('#p_suhu').text(d['Suhu'] || '-'); $('#p_icterus').text(d['Icterus'] || '-'); $('#p_anemis').text(d['Anemis'] || '-'); $('#p_cyanosis').text(d['Cyanosis'] || '-'); $('#p_butawarna').text(d['ButaWarna'] || '-');
-    $('#p_imt').text(d['IMT'] || '-');
-    
-    $('#p_v_tk_ka').text(d['VisusTanpaKa'] || '-'); $('#p_v_tk_ki').text(d['VisusTanpaKi'] || '-'); $('#p_j_ka').text(d['JulingKa'] || '-'); $('#p_j_ki').text(d['JulingKi'] || '-'); $('#p_r_ka').text(d['RadangKa'] || '-'); $('#p_r_ki').text(d['RadangKi'] || '-');
-    $('#p_d_ka').text(d['TelingaDengarKa'] || '-'); $('#p_d_ki').text(d['TelingaDengarKi'] || '-'); $('#p_c_ka').text(d['TelingaLiangKa'] || '-'); $('#p_c_ki').text(d['TelingaLiangKi'] || '-');
-    $('#p_gigi').text(d['Gigi'] || '-'); $('#p_lidah').text(d['Lidah'] || '-'); $('#p_tongsil').text(d['Tongsil'] || '-'); $('#p_leher').text(d['Leher'] || '-'); $('#p_nafas').text(d['Nafas'] || '-'); $('#p_rad').text(d['Radiologi'] || '-'); $('#p_ekg').text(d['EKG'] || '-');
-    $('#p_abling').text(d['AbdLingkar'] || '-'); $('#p_abper').text(d['AbdPeristaltik'] || '-'); $('#p_gen').text(d['Genetalia'] || '-'); $('#p_kulit').text(d['Kulit'] || '-'); $('#p_tul').text(d['Tulang'] || '-'); $('#p_exa').text(d['ExtAtas'] || '-'); $('#p_exb').text(d['ExtBawah'] || '-');
-    
-    $('#p_l_hb').text(d['Lab_Hb']||'-'); $('#p_l_ht').text(d['Lab_Ht']||'-'); $('#p_l_eri').text(d['Lab_Eritrosit']||'-'); $('#p_l_trombo').text(d['Lab_Trombosit']||'-'); $('#p_l_leko').text(d['Lab_Lekosit']||'-'); $('#p_l_jleko').text(d['Lab_JenisLekosit']||'-'); $('#p_l_led').text(d['Lab_LED']||'-');
-    $('#p_u_ph').text(d['Uri_pH']||'-'); $('#p_u_bj').text(d['Uri_BJ']||'-'); $('#p_u_pro').text(d['Uri_Protein']||'-'); $('#p_u_glu').text(d['Uri_Glukosa']||'-'); $('#p_u_bil').text(d['Uri_Bilirubin']||'-'); $('#p_u_uro').text(d['Uri_Urobilinogen']||'-'); $('#p_u_ket').text(d['Uri_Keton']||'-'); $('#p_u_nit').text(d['Uri_Nitrit']||'-'); $('#p_u_lek').text(d['Uri_Lekosit']||'-'); $('#p_u_eri').text(d['Uri_Eritrosit']||'-');
-    $('#p_s_eri').text(d['Sed_Eritrosit']||'-'); $('#p_s_lek').text(d['Sed_Lekosit']||'-'); $('#p_s_epi').text(d['Sed_Epitel']||'-'); $('#p_s_kri').text(d['Sed_Kristal']||'-'); $('#p_s_sil').text(d['Sed_Silinder']||'-'); $('#p_s_lain').text(d['Sed_Lain']||'-');
-    $('#p_m_bta').text(d['Mikro_BTA']||'-'); $('#p_m_mh').text(d['Mikro_MH']||'-');
-    $('#p_l_gdp').text(d['Kim_GDP']||'-'); $('#p_l_gd2').text(d['Kim_GD2PP']||'-'); $('#p_l_gda').text(d['Kim_GDA']||'-');
-    $('#p_l_chol').text(d['Lemak_Chol']||'-'); $('#p_l_trig').text(d['Lemak_Trig']||'-'); $('#p_l_hdl').text(d['Lemak_HDL']||'-'); $('#p_l_ldl').text(d['Lemak_LDL']||'-');
-    $('#p_l_sgot').text(d['Hati_SGOT']||'-'); $('#p_l_sgpt').text(d['Hati_SGPT']||'-'); $('#p_l_ur').text(d['Ginjal_Ureum']||'-'); $('#p_l_kre').text(d['Ginjal_Kreatinin']||'-'); $('#p_l_au').text(d['Ginjal_AsamUrat']||'-');
-    $('#p_s_hamil').text(d['Sero_Hamil']||'-'); $('#p_s_gol').text(d['Sero_GolDarah']||'-'); $('#p_w_o').text(d['Widal_TyphiO']||'-'); $('#p_w_h').text(d['Widal_TyphiH']||'-'); $('#p_w_pa').text(d['Widal_ParaA']||'-'); $('#p_w_pb').text(d['Widal_ParaB']||'-'); $('#p_s_hbsag').text(d['Sero_HBsAg']||'-'); $('#p_s_syp').text(d['Sero_Syphilis']||'-'); $('#p_s_hiv').text(d['Sero_HIV']||'-'); $('#p_s_hbsab').text(d['Sero_HBsAb']||'-');
+    const d = mcuData.find(row => row.ID == id);
+    if(d) {
+      $('#p_no').text(d['NoPeriksa'] || '-'); $('#p_nama').text(d['Nama'] \vert{}\vert{} '-'); $('#p_tempat_lahir').text(d['TempatLahir'] || '-'); $('#p_tgl_lahir').text(formatTanggalIndo(d['TglLahir']) \vert{}\vert{} '-'); $('#p_posisi').text(d['PosisiID'] || '-'); $('#p_gender').text(d['Gender'] \vert{}\vert{} '-'); $('#p_bagian').text(d['Bagian'] || '-');
+      
+      // Hitung Usia (Print Out)
+      $('#p_usia').text(hitungUsia(d['TglLahir'], d['TglPeriksa']));
 
-    $('#p_diagnosa').text(d['Diagnosa'] || '-'); $('#p_kesimpulan').text(d['Kesimpulan'] || '-'); $('#p_saran').text(d['Saran'] || '-');
-    $('#p_nama_dokter').text(d['NamaDokter'] || '.........................');
-    $('#p_nip_dokter').text(d['NipDokter'] || '.........................');
-    $('#p_tgl_cetak').text(formatTanggalIndo(d['TglPeriksa']));
-    
-    const pArea = document.getElementById('printArea'); pArea.classList.remove('d-none'); window.print(); pArea.classList.add('d-none');
+      $('#p_kebersihan').text(d['Kebersihan'] \vert{}\vert{} '-'); $('#p_kepala').text(d['KepalaMuka'] || '-'); $('#p_keluhan').text(d['Keluhan'] \vert{}\vert{} '-'); $('#p_rpenyakit').text(d['RPenyakit'] || '-'); $('#p_rkeluarga').text(d['RKeluarga'] \vert{}\vert{} '-'); $('#p_ralergi').text(d['RAlergi'] || '-');
+      $('#p_tb').text(d['TB'] || '-'); $('#p_bb').text(d['BB'] \vert{}\vert{} '-'); $('#p_tensi').text(d['Tensi'] || '-'); $('#p_nadi').text(d['Nadi'] \vert{}\vert{} '-'); $('#p_suhu').text(d['Suhu'] || '-'); $('#p_icterus').text(d['Icterus'] \vert{}\vert{} '-'); $('#p_anemis').text(d['Anemis'] || '-'); $('#p_cyanosis').text(d['Cyanosis'] \vert{}\vert{} '-'); $('#p_butawarna').text(d['ButaWarna'] || '-');
+      $('#p_imt').text(d['IMT'] || '-');
+      
+      $('#p_v_tk_ka').text(d['VisusTanpaKa'] \vert{}\vert{} '-'); $('#p_v_tk_ki').text(d['VisusTanpaKi'] || '-'); $('#p_j_ka').text(d['JulingKa'] \vert{}\vert{} '-'); $('#p_j_ki').text(d['JulingKi'] || '-'); $('#p_r_ka').text(d['RadangKa'] \vert{}\vert{} '-'); $('#p_r_ki').text(d['RadangKi'] || '-');
+      $('#p_d_ka').text(d['TelingaDengarKa'] \vert{}\vert{} '-'); $('#p_d_ki').text(d['TelingaDengarKi'] || '-'); $('#p_c_ka').text(d['TelingaLiangKa'] \vert{}\vert{} '-'); $('#p_c_ki').text(d['TelingaLiangKi'] || '-');
+      $('#p_gigi').text(d['Gigi'] || '-'); $('#p_lidah').text(d['Lidah'] \vert{}\vert{} '-'); $('#p_tongsil').text(d['Tongsil'] || '-'); $('#p_leher').text(d['Leher'] \vert{}\vert{} '-'); $('#p_nafas').text(d['Nafas'] || '-'); $('#p_rad').text(d['Radiologi'] \vert{}\vert{} '-'); $('#p_ekg').text(d['EKG'] || '-');
+      $('#p_abling').text(d['AbdLingkar'] || '-'); $('#p_abper').text(d['AbdPeristaltik'] \vert{}\vert{} '-'); $('#p_gen').text(d['Genetalia'] || '-'); $('#p_kulit').text(d['Kulit'] \vert{}\vert{} '-'); $('#p_tul').text(d['Tulang'] || '-'); $('#p_exa').text(d['ExtAtas'] \vert{}\vert{} '-'); $('#p_exb').text(d['ExtBawah'] || '-');
+      
+      $('#p_l_hb').text(d['Lab_Hb']||'-'); $('#p_l_ht').text(d['Lab_Ht']\vert{}\vert{}'-'); $('#p_l_eri').text(d['Lab_Eritrosit']||'-'); $('#p_l_trombo').text(d['Lab_Trombosit']\vert{}\vert{}'-'); $('#p_l_leko').text(d['Lab_Lekosit']||'-'); $('#p_l_jleko').text(d['Lab_JenisLekosit']\vert{}\vert{}'-'); $('#p_l_led').text(d['Lab_LED']||'-');
+      $('#p_u_ph').text(d['Uri_pH']\vert{}\vert{}'-'); $('#p_u_bj').text(d['Uri_BJ']||'-'); $('#p_u_pro').text(d['Uri_Protein']\vert{}\vert{}'-'); $('#p_u_glu').text(d['Uri_Glukosa']||'-'); $('#p_u_bil').text(d['Uri_Bilirubin']\vert{}\vert{}'-'); $('#p_u_uro').text(d['Uri_Urobilinogen']||'-'); $('#p_u_ket').text(d['Uri_Keton']\vert{}\vert{}'-'); $('#p_u_nit').text(d['Uri_Nitrit']||'-'); $('#p_u_lek').text(d['Uri_Lekosit']\vert{}\vert{}'-'); $('#p_u_eri').text(d['Uri_Eritrosit']||'-');
+      $('#p_s_eri').text(d['Sed_Eritrosit']\vert{}\vert{}'-'); $('#p_s_lek').text(d['Sed_Lekosit']||'-'); $('#p_s_epi').text(d['Sed_Epitel']\vert{}\vert{}'-'); $('#p_s_kri').text(d['Sed_Kristal']||'-'); $('#p_s_sil').text(d['Sed_Silinder']\vert{}\vert{}'-'); $('#p_s_lain').text(d['Sed_Lain']||'-');
+      $('#p_m_bta').text(d['Mikro_BTA']\vert{}\vert{}'-'); $('#p_m_mh').text(d['Mikro_MH']||'-');
+      $('#p_l_gdp').text(d['Kim_GDP']||'-'); $('#p_l_gd2').text(d['Kim_GD2PP']\vert{}\vert{}'-'); $('#p_l_gda').text(d['Kim_GDA']||'-');
+      $('#p_l_chol').text(d['Lemak_Chol']\vert{}\vert{}'-'); $('#p_l_trig').text(d['Lemak_Trig']||'-'); $('#p_l_hdl').text(d['Lemak_HDL']\vert{}\vert{}'-'); $('#p_l_ldl').text(d['Lemak_LDL']||'-');
+      $('#p_l_sgot').text(d['Hati_SGOT']||'-'); $('#p_l_sgpt').text(d['Hati_SGPT']\vert{}\vert{}'-'); $('#p_l_ur').text(d['Ginjal_Ureum']||'-'); $('#p_l_kre').text(d['Ginjal_Kreatinin']\vert{}\vert{}'-'); $('#p_l_au').text(d['Ginjal_AsamUrat']||'-');
+      $('#p_s_hamil').text(d['Sero_Hamil']\vert{}\vert{}'-'); $('#p_s_gol').text(d['Sero_GolDarah']||'-'); $('#p_w_o').text(d['Widal_TyphiO']\vert{}\vert{}'-'); $('#p_w_h').text(d['Widal_TyphiH']||'-'); $('#p_w_pa').text(d['Widal_ParaA']\vert{}\vert{}'-'); $('#p_w_pb').text(d['Widal_ParaB']||'-'); $('#p_s_hbsag').text(d['Sero_HBsAg']\vert{}\vert{}'-'); $('#p_s_syp').text(d['Sero_Syphilis']||'-'); $('#p_s_hiv').text(d['Sero_HIV']\vert{}\vert{}'-'); $('#p_s_hbsab').text(d['Sero_HBsAb']||'-');
+
+      $('#p_diagnosa').text(d['Diagnosa'] || '-'); $('#p_kesimpulan').text(d['Kesimpulan'] \vert{}\vert{} '-'); $('#p_saran').text(d['Saran'] || '-');
+      $('#p_nama_dokter').text(d['NamaDokter'] || '.........................');
+      $('#p_nip_dokter').text(d['NipDokter'] || '.........................');
+      $('#p_tgl_cetak').text(formatTanggalIndo(d['TglPeriksa']));
+      
+      const pArea = document.getElementById('printArea'); pArea.classList.remove('d-none'); window.print(); pArea.classList.add('d-none');
+    }
   }
-}
 </script>
 </body>
 </html>
