@@ -117,7 +117,16 @@
         <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="fas fa-users me-2"></i>Database Akun Pasien</span>
           <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-primary" onclick="openModalPasien()"><i class="fas fa-plus"></i> Registrasi Baru</button>
+            <!-- TAMBAHAN: Tombol Unduh Template -->
+            <button class="btn btn-sm btn-outline-success fw-bold" onclick="downloadTemplate()"><i class="fas fa-file-excel"></i> Unduh Template Excel</button>
+            
+            <!-- TAMBAHAN: Label Upload (Dibuat sbg file input yang disembunyikan) -->
+            <label class="btn btn-sm btn-outline-primary fw-bold mb-0" style="cursor:pointer;">
+              <i class="fas fa-upload"></i> Upload Data Pasien
+              <input type="file" id="uploadExcel" accept=".xlsx, .xls" class="d-none" onchange="uploadTemplate(event)">
+            </label>
+
+            <button class="btn btn-sm btn-primary fw-bold" onclick="openModalPasien()"><i class="fas fa-plus"></i> Registrasi Baru</button>
           </div>
         </div>
         <div class="card-body">
@@ -145,7 +154,6 @@
                 <div class="mb-3"><label class="small fw-bold text-primary">Ketik/Pilih Nama Pasien (Auto-fill)</label><input type="text" class="form-control bg-kuning" id="inputNamaFilter" list="pasienList" oninput="autoFillPasien()"><datalist id="pasienList"></datalist><input type="hidden" name="Nama" id="inputNama"></div>
                 <div class="row g-2 mb-2"><div class="col-6"><label class="small">No Periksa</label><input type="text" class="form-control form-control-sm" name="NoPeriksa" required></div><div class="col-6"><label class="small">Tgl Periksa</label><input type="date" class="form-control form-control-sm" name="TglPeriksa" required></div></div>
                 
-                <!-- SPLIT TEMPAT & TANGGAL LAHIR -->
                 <div class="row g-2 mb-2"><div class="col-6"><label class="small">Tempat Lahir</label><input type="text" class="form-control form-control-sm bg-light" name="TempatLahir" readonly></div><div class="col-6"><label class="small">Tanggal Lahir</label><input type="date" class="form-control form-control-sm bg-light" name="TglLahir" readonly></div></div>
                 
                 <div class="row g-2 mb-2"><div class="col-6"><label class="small">Posisi / ID</label><input type="text" class="form-control form-control-sm bg-light" name="PosisiID" readonly></div><div class="col-6"><label class="small">Bagian</label><input type="text" class="form-control form-control-sm bg-light" name="Bagian" readonly></div></div>
@@ -503,6 +511,63 @@
     } 
   });
 
+  // TAMBAHAN: FUNGSI UNDUH TEMPLATE EXCEL
+  function downloadTemplate() {
+    const ws_data = [
+      ["Nama", "TempatLahir", "TglLahir", "PosisiID", "Gender", "Bagian", "Password"],
+      ["Contoh Nama Pasien", "Gresik", "1990-01-01", "POS001", "Male", "Produksi", "12345"]
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    
+    // Auto-adjust column width for better readability
+    const wscols = [ {wch: 25}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 10}, {wch: 15}, {wch: 15} ];
+    ws['!cols'] = wscols;
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "DataPasien");
+    XLSX.writeFile(wb, "Template_Upload_Pasien.xlsx");
+  }
+
+  // TAMBAHAN: FUNGSI UPLOAD EXCEL BATCH
+  function uploadTemplate(e) {
+    const file = e.target.files[0];
+    if(!file) return;
+    
+    Swal.fire({ title: 'Membaca Excel...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const data = evt.target.result;
+      const workbook = XLSX.read(data, {type: 'binary', cellDates: true});
+      const firstSheet = workbook.SheetNames[0];
+      
+      // Convert sheet to array of objects. raw: false ensures dates are formatted properly
+      const excelRows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { raw: false, dateNF: 'yyyy-mm-dd' });
+      
+      if(excelRows.length > 0) {
+        // Prepare data to match database columns
+        const formattedData = excelRows.map(row => ({
+          Nama: row.Nama || '',
+          TempatLahir: row.TempatLahir || '',
+          TglLahir: row.TglLahir || '',
+          PosisiID: row.PosisiID || '',
+          Gender: row.Gender || '',
+          Bagian: row.Bagian || '',
+          Password: row.Password || '123456' // default password if empty
+        }));
+        
+        postData('savePasienBatch', formattedData, () => {
+          $('#uploadExcel').val('');
+          loadDataAll();
+        });
+      } else {
+        Swal.fire('Error', 'File Excel kosong atau format tidak sesuai.', 'error');
+        $('#uploadExcel').val('');
+      }
+    };
+    reader.readAsBinaryString(file);
+  }
+
   function hitungUsia(tglLahir, tglPeriksa) {
     if(!tglLahir || !tglPeriksa) return '-';
     let birthDate = new Date(tglLahir);
@@ -531,7 +596,6 @@
     } else { $('input[name="IMT"]').val(''); }
   }
 
-  // OPTIMASI: Login diproses bersamaan pengambilan data
   function handleLogin(e) {
     e.preventDefault(); 
     const role = $('#logRole').val(), user = $('#logUser').val(), pass = $('#logPass').val();
@@ -543,7 +607,6 @@
         currentUser = { role: res.role, name: res.name, id: res.id }; 
         sessionStorage.setItem('loggedUser', JSON.stringify(currentUser)); 
         
-        // Simpan bundle data dari respons login
         if(res.dbData) {
           mcuData = res.dbData.mcu || [];
           pasienData = res.dbData.pasien || [];
@@ -552,14 +615,13 @@
         
         Swal.close(); 
         $('#loginView').addClass('d-none'); $('#appView').removeClass('d-none');
-        setupDashboard(true); // pass true karena data sudah didapat
+        setupDashboard(true); 
       } else { Swal.fire('Gagal', res.message, 'error'); }
     }).catch(err => Swal.fire('Error', 'Gagal terhubung ke Database.', 'error'));
   }
 
   function logout() { sessionStorage.removeItem('loggedUser'); location.reload(); }
 
-  // parameter hasData=true artinya tidak perlu memanggil fetch dari server lagi
   function setupDashboard(hasData = false) {
     $('#navUsername').text(currentUser.name);
     let tabs = '';
@@ -703,7 +765,6 @@
     if(d) {
       $('#p_no').text(d['NoPeriksa'] || '-'); $('#p_nama').text(d['Nama'] || '-'); $('#p_tempat_lahir').text(d['TempatLahir'] || '-'); $('#p_tgl_lahir').text(formatTanggalIndo(d['TglLahir']) || '-'); $('#p_posisi').text(d['PosisiID'] || '-'); $('#p_gender').text(d['Gender'] || '-'); $('#p_bagian').text(d['Bagian'] || '-');
       
-      // Hitung Usia (Print Out)
       $('#p_usia').text(hitungUsia(d['TglLahir'], d['TglPeriksa']));
 
       $('#p_kebersihan').text(d['Kebersihan'] || '-'); $('#p_kepala').text(d['KepalaMuka'] || '-'); $('#p_keluhan').text(d['Keluhan'] || '-'); $('#p_rpenyakit').text(d['RPenyakit'] || '-'); $('#p_rkeluarga').text(d['RKeluarga'] || '-'); $('#p_ralergi').text(d['RAlergi'] || '-');
