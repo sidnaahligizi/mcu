@@ -507,13 +507,14 @@
     } 
   });
 
+  // 1. UPDATE FUNGSI UNDUH TEMPLATE EXCEL
   function downloadTemplate() {
     const ws_data = [
-      ["Nama", "TempatLahir", "TglLahir", "PosisiID", "Gender", "Bagian", "Password"],
-      ["Contoh Nama Pasien", "Gresik", "1990-01-01", "POS001", "Male", "Produksi", "12345"]
+      ["ID_Pasien", "Nama", "TempatLahir", "TglLahir", "PosisiID", "Gender", "Bagian", "Password"],
+      ["PSN-001", "Contoh Nama Pasien", "Gresik", "1990-01-01", "POS001", "Male", "Produksi", "12345"]
     ];
     const ws = XLSX.utils.aoa_to_sheet(ws_data);
-    const wscols = [ {wch: 25}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 10}, {wch: 15}, {wch: 15} ];
+    const wscols = [ {wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 10}, {wch: 15}, {wch: 15} ];
     ws['!cols'] = wscols;
 
     const wb = XLSX.utils.book_new();
@@ -521,6 +522,7 @@
     XLSX.writeFile(wb, "Template_Upload_Pasien.xlsx");
   }
 
+  // 2. UPDATE FUNGSI UPLOAD EXCEL BATCH
   function uploadTemplate(e) {
     const file = e.target.files[0];
     if(!file) return;
@@ -536,6 +538,7 @@
       
       if(excelRows.length > 0) {
         const formattedData = excelRows.map(row => ({
+          ID_Pasien: row.ID_Pasien || '',
           Nama: row.Nama || '',
           TempatLahir: row.TempatLahir || '',
           TglLahir: row.TglLahir || '',
@@ -547,7 +550,7 @@
         
         postData('savePasienBatch', formattedData, () => {
           $('#uploadExcel').val('');
-          loadDataAll();
+          loadDataAll(); // Reload otomatis setelah upload selesai
         });
       } else {
         Swal.fire('Error', 'File Excel kosong atau format tidak sesuai.', 'error');
@@ -557,6 +560,37 @@
     reader.readAsBinaryString(file);
   }
 
+  // 3. UPDATE FUNGSI DASHBOARD PASIEN (TAMBAH TTL)
+  function renderDashboardPasien() {
+    const myHistory = mcuData.filter(m => m.Nama.toLowerCase() === currentUser.name.toLowerCase());
+    
+    // Cari profil lengkap dari database Pasien
+    const myProfile = pasienData.find(p => p.Nama.toLowerCase() === currentUser.name.toLowerCase());
+
+    if(myProfile) { 
+        // Desain baru dengan tambahan Tempat, Tgl Lahir
+        $('#pasienProfilInfo').html(`
+            <div class="mt-2 text-white">
+                <div class="mb-1"><i class="fas fa-id-badge"></i> ${myProfile.PosisiID || '-'} | Bagian: ${myProfile.Bagian || '-'}</div>
+                <div class="badge bg-light text-dark opacity-100 mt-2 p-2" style="font-size: 0.85rem;">
+                    <i class="fas fa-birthday-cake text-primary me-1"></i> ${myProfile.TempatLahir || '-'}, ${formatTanggalIndo(myProfile.TglLahir)}
+                </div>
+            </div>
+        `); 
+    } else if (myHistory.length > 0) {
+        $('#pasienProfilInfo').text(`${myHistory[myHistory.length - 1]['PosisiID'] || '-'} | Bagian: ${myHistory[myHistory.length - 1].Bagian || '-'}`); 
+    }
+
+    let histHtml = '';
+    if(myHistory.length > 0) {
+      myHistory.reverse().forEach((h) => {
+        histHtml += `<div class="card riwayat-card mb-3 bg-white"><div class="card-body"><div class="d-flex justify-content-between align-items-center mb-2"><span class="badge bg-success px-2 py-1"><i class="fas fa-stethoscope"></i> No Periksa: ${h.NoPeriksa || '-'}</span><small class="text-muted fw-bold"><i class="fas fa-calendar-alt"></i> ${formatTanggalIndo(h.TglPeriksa)}</small></div><div class="row mt-3"><div class="col-8"><h6 class="fw-bold text-dark mb-1">Diagnosa: ${h.Diagnosa || '-'}</h6><p class="small text-muted mb-0">Kesimpulan: <b>${h.Kesimpulan || '-'}</b></p></div><div class="col-4 d-flex align-items-center"><button class="btn btn-outline-primary btn-sm w-100 fw-bold" onclick="printData('${h.ID}')"><i class="fas fa-print"></i> Cetak PDF</button></div></div></div></div>`;
+      });
+    } else { 
+        histHtml = `<div class="alert alert-warning text-center"><i class="fas fa-search mb-2 fs-3 d-block"></i> Rekam medis Anda belum tercatat.</div>`; 
+    }
+    $('#pasienHistoryContainer').html(histHtml);
+  }
   // FUNGSI CUSTOM EXPORT SELURUH DATA MCU KE EXCEL
   function exportSemuaDataMCU() {
     if (mcuData.length === 0) {
@@ -693,19 +727,7 @@
 
   function populateUI() { renderTablePasien(); renderTableRekap(); updateSelectPasien(); updateSelectDokter(); }
 
-  function renderDashboardPasien() {
-    const myHistory = mcuData.filter(m => m.Nama.toLowerCase() === currentUser.name.toLowerCase());
-    if(myHistory.length > 0) { $('#pasienProfilInfo').text(`${myHistory[myHistory.length - 1]['PosisiID'] || '-'} | Bagian: ${myHistory[myHistory.length - 1].Bagian || '-'}`); }
-    let histHtml = '';
-    if(myHistory.length > 0) {
-      myHistory.reverse().forEach((h) => {
-        histHtml += `<div class="card riwayat-card mb-3 bg-white"><div class="card-body"><div class="d-flex justify-content-between align-items-center mb-2"><span class="badge bg-success px-2 py-1"><i class="fas fa-stethoscope"></i> No Periksa: ${h['NoPeriksa'] || '-'}</span><small class="text-muted fw-bold"><i class="fas fa-calendar-alt"></i> ${formatTanggalIndo(h['TglPeriksa'])}</small></div><div class="row mt-3"><div class="col-8"><h6 class="fw-bold text-dark mb-1">Diagnosa: ${h.Diagnosa || '-'}</h6><p class="small text-muted mb-0">Kesimpulan: <b>${h.Kesimpulan || '-'}</b></p></div><div class="col-4 d-flex align-items-center"><button class="btn btn-outline-primary btn-sm w-100 fw-bold" onclick="printData('${h.ID}')"><i class="fas fa-print"></i> Cetak PDF</button></div></div></div></div>`;
-      });
-    } else { histHtml = `<div class="alert alert-warning text-center"><i class="fas fa-search mb-2 fs-3 d-block"></i> Rekam medis Anda belum tercatat.</div>`; }
-    $('#pasienHistoryContainer').html(histHtml);
-  }
-
-  function renderTablePasien() {
+ function renderTablePasien() {
     if (dtPasien) dtPasien.destroy(); let html = '';
     pasienData.forEach(r => { html += `<tr><td class="fw-bold">${r.Nama}</td><td>${formatTanggalIndo(r.TglLahir)}</td><td>${r.PosisiID}</td><td>${r.Bagian}</td><td>${r.Password}</td><td><button class="btn btn-sm btn-warning" onclick="editPasien('${r.ID_Pasien}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="hapusData('deletePasien', '${r.ID_Pasien}')"><i class="fas fa-trash"></i></button></td></tr>`; });
     $('#bodyPasien').html(html); dtPasien = $('#tablePasien').DataTable({ responsive: true });
