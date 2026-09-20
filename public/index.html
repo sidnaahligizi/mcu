@@ -117,15 +117,11 @@
         <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="fas fa-users me-2"></i>Database Akun Pasien</span>
           <div class="d-flex gap-2">
-            <!-- TAMBAHAN: Tombol Unduh Template -->
             <button class="btn btn-sm btn-outline-success fw-bold" onclick="downloadTemplate()"><i class="fas fa-file-excel"></i> Unduh Template Excel</button>
-            
-            <!-- TAMBAHAN: Label Upload (Dibuat sbg file input yang disembunyikan) -->
             <label class="btn btn-sm btn-outline-primary fw-bold mb-0" style="cursor:pointer;">
               <i class="fas fa-upload"></i> Upload Data Pasien
               <input type="file" id="uploadExcel" accept=".xlsx, .xls" class="d-none" onchange="uploadTemplate(event)">
             </label>
-
             <button class="btn btn-sm btn-primary fw-bold" onclick="openModalPasien()"><i class="fas fa-plus"></i> Registrasi Baru</button>
           </div>
         </div>
@@ -511,15 +507,12 @@
     } 
   });
 
-  // TAMBAHAN: FUNGSI UNDUH TEMPLATE EXCEL
   function downloadTemplate() {
     const ws_data = [
       ["Nama", "TempatLahir", "TglLahir", "PosisiID", "Gender", "Bagian", "Password"],
       ["Contoh Nama Pasien", "Gresik", "1990-01-01", "POS001", "Male", "Produksi", "12345"]
     ];
     const ws = XLSX.utils.aoa_to_sheet(ws_data);
-    
-    // Auto-adjust column width for better readability
     const wscols = [ {wch: 25}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 10}, {wch: 15}, {wch: 15} ];
     ws['!cols'] = wscols;
 
@@ -528,7 +521,6 @@
     XLSX.writeFile(wb, "Template_Upload_Pasien.xlsx");
   }
 
-  // TAMBAHAN: FUNGSI UPLOAD EXCEL BATCH
   function uploadTemplate(e) {
     const file = e.target.files[0];
     if(!file) return;
@@ -540,12 +532,9 @@
       const data = evt.target.result;
       const workbook = XLSX.read(data, {type: 'binary', cellDates: true});
       const firstSheet = workbook.SheetNames[0];
-      
-      // Convert sheet to array of objects. raw: false ensures dates are formatted properly
       const excelRows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { raw: false, dateNF: 'yyyy-mm-dd' });
       
       if(excelRows.length > 0) {
-        // Prepare data to match database columns
         const formattedData = excelRows.map(row => ({
           Nama: row.Nama || '',
           TempatLahir: row.TempatLahir || '',
@@ -553,7 +542,7 @@
           PosisiID: row.PosisiID || '',
           Gender: row.Gender || '',
           Bagian: row.Bagian || '',
-          Password: row.Password || '123456' // default password if empty
+          Password: row.Password || '123456'
         }));
         
         postData('savePasienBatch', formattedData, () => {
@@ -566,6 +555,46 @@
       }
     };
     reader.readAsBinaryString(file);
+  }
+
+  // FUNGSI CUSTOM EXPORT SELURUH DATA MCU KE EXCEL
+  function exportSemuaDataMCU() {
+    if (mcuData.length === 0) {
+      Swal.fire('Info', 'Tidak ada data untuk diexport', 'info');
+      return;
+    }
+    
+    const header = [
+      "ID", "NoPeriksa", "TglPeriksa", "Nama", "TempatLahir", "TglLahir", "PosisiID", "Gender", "Bagian", 
+      "Kebersihan", "KepalaMuka", "Keluhan", "RPenyakit", "RKeluarga", "RAlergi", "TB", "BB", "IMT", 
+      "Tensi", "Nadi", "Suhu", "Icterus", "Anemis", "Cyanosis", "ButaWarna", "VisusTanpaKa", "VisusTanpaKi", 
+      "VisusKacaKa", "VisusKacaKi", "JulingKa", "JulingKi", "RadangKa", "RadangKi", "TelingaDengarKa", 
+      "TelingaDengarKi", "TelingaLiangKa", "TelingaLiangKi", "Gigi", "Lidah", "Tongsil", "Leher", "Nafas", 
+      "AbdLingkar", "AbdPeristaltik", "Genetalia", "Kulit", "Tulang", "ExtAtas", "ExtBawah", "Radiologi", 
+      "EKG", "Lab_Hb", "Lab_Ht", "Lab_Eritrosit", "Lab_Trombosit", "Lab_Lekosit", "Lab_JenisLekosit", 
+      "Lab_LED", "Uri_pH", "Uri_BJ", "Uri_Protein", "Uri_Glukosa", "Uri_Bilirubin", "Uri_Urobilinogen", 
+      "Uri_Keton", "Uri_Nitrit", "Uri_Lekosit", "Uri_Eritrosit", "Sed_Eritrosit", "Sed_Lekosit", "Sed_Epitel", 
+      "Sed_Kristal", "Sed_Silinder", "Sed_Lain", "Mikro_BTA", "Mikro_MH", "Kim_GDP", "Kim_GD2PP", "Kim_GDA", 
+      "Lemak_Chol", "Lemak_Trig", "Lemak_HDL", "Lemak_LDL", "Hati_SGOT", "Hati_SGPT", "Ginjal_Ureum", 
+      "Ginjal_Kreatinin", "Ginjal_AsamUrat", "Sero_Hamil", "Sero_GolDarah", "Widal_TyphiO", "Widal_TyphiH", 
+      "Widal_ParaA", "Widal_ParaB", "Sero_HBsAg", "Sero_Syphilis", "Sero_HIV", "Sero_HBsAb", "Diagnosa", 
+      "Kesimpulan", "Saran", "NamaDokter", "NipDokter"
+    ];
+
+    const dataExport = mcuData.map(d => {
+       let row = [];
+       header.forEach(col => {
+          row.push(d[col] || '');
+       });
+       return row;
+    });
+
+    dataExport.unshift(header); // Masukkan header di baris paling atas
+
+    const ws = XLSX.utils.aoa_to_sheet(dataExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "DataMCU");
+    XLSX.writeFile(wb, "Rekap_Seluruh_Data_MCU.xlsx");
   }
 
   function hitungUsia(tglLahir, tglPeriksa) {
@@ -685,7 +714,24 @@
   function renderTableRekap() {
     if (dtRekap) dtRekap.destroy(); let html = '';
     mcuData.forEach(r => { html += `<tr><td><span class="badge bg-secondary">${r.NoPeriksa || ''}</span></td><td>${formatTanggalIndo(r.TglPeriksa) || ''}</td><td class="fw-bold">${r.Nama || ''}</td><td>${r.Bagian || ''}</td><td>${r.Diagnosa || ''}</td><td class="text-center"><button class="btn btn-sm btn-success" onclick="printData('${r.ID}')"><i class="fas fa-print"></i></button> <button class="btn btn-sm btn-warning" onclick="editMCU('${r.ID}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="hapusData('deleteMCU', '${r.ID}')"><i class="fas fa-trash"></i></button></td></tr>`; });
-    $('#bodyRekap').html(html); dtRekap = $('#tableRekap').DataTable({ responsive: true, order: [[0, 'desc']], dom: 'Bfrtip', buttons: [ { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Export Excel', className: 'btn btn-success btn-sm mb-3 fw-bold', exportOptions: { columns: ':not(.no-export)' } } ] });
+    
+    $('#bodyRekap').html(html); 
+    
+    // UBAH TOMBOL EXPORT BAWAAN DATATABLES KE CUSTOM FUNCTION
+    dtRekap = $('#tableRekap').DataTable({ 
+      responsive: true, 
+      order: [[0, 'desc']], 
+      dom: 'Bfrtip', 
+      buttons: [ 
+        { 
+          text: '<i class="fas fa-file-excel"></i> Export Semua Data Excel', 
+          className: 'btn btn-success btn-sm mb-3 fw-bold', 
+          action: function ( e, dt, node, config ) {
+             exportSemuaDataMCU();
+          }
+        } 
+      ] 
+    });
   }
 
   function updateSelectDokter() { let opts = '<option value="">-- Pilih Dokter --</option>'; dokterData.forEach(d => { opts += `<option value="${d.Nama}">${d.Nama}</option>`; }); $('#selectDokter').html(opts); }
