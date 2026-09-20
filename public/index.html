@@ -628,18 +628,63 @@
     if(el) { $('.nav-link').removeClass('active fw-bold'); $(el).addClass('active fw-bold'); } else if(isInit) {$('.nav-link').first().addClass('active fw-bold'); }
   }
 
+  // UBAH FUNGSI loadDataAll UNTUK LOADING SUPER CEPAT
   function loadDataAll() {
     Swal.fire({ title: 'Memuat Database...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-    Promise.all([
-      fetch(API_URL + '?action=readPasien').then(r=>r.json()), 
-      fetch(API_URL + '?action=readMCU').then(r=>r.json()), 
-      fetch(API_URL + '?action=readDokter').then(r=>r.json())
-    ]).then(([resPasien, resMCU, resDokter]) => {
-      if(resPasien.status === 'success') pasienData = resPasien.data;
-      if(resMCU.status === 'success') mcuData = resMCU.data;
-      if(resDokter && resDokter.status === 'success') dokterData = resDokter.data;
-      renderTablePasien(); renderTableRekap(); updateSelectPasien(); updateSelectDokter(); Swal.close();
-    });
+    
+    // Tarik semua tabel dalam 1 hit (sangat cepat)
+    fetch(API_URL + '?action=readAll')
+      .then(r => r.json())
+      .then(res => {
+        if(res.status === 'success') {
+          mcuData = res.data.mcu || [];
+          pasienData = res.data.pasien || [];
+          dokterData = res.data.dokter || [];
+          renderTablePasien(); 
+          renderTableRekap(); 
+          updateSelectPasien(); 
+          updateSelectDokter(); 
+          Swal.close();
+        } else {
+          Swal.fire('Error', 'Gagal memuat struktur data', 'error');
+        }
+      }).catch(err => {
+        Swal.close();
+        console.error(err);
+      });
+  }
+
+  // PASTIKAN FILTER HANYA MENGGUNAKAN NAMA
+  function updateSelectPasien() { 
+    let opts = ''; 
+    // Data list value murni menggunakan Nama
+    pasienData.forEach(p => { opts += `<option value="${p.Nama}">${p['Posisi/ID']} - ${p.Bagian}</option>`; }); 
+    $('#pasienList').html(opts); 
+  }
+
+  function autoFillPasien() {
+    const val = $('#inputNamaFilter').val(), p = pasienData.find(x => x.Nama === val), f = document.getElementById('mcuForm');
+    if(p) { 
+      f.Nama.value = p.Nama; 
+      $('#inputNama').val(p.Nama); 
+      f.TTL.value = p['Tempat/Tgl Lahir']; 
+      f.PosisiID.value = p['Posisi/ID']; 
+      f.Gender.value = p.Gender; 
+      f.Bagian.value = p.Bagian; 
+    } else { 
+      // Jika manual ketik nama, ID filter tetap pakai Nama
+      f.Nama.value = val; 
+      $('#inputNama').val(val); 
+      f.TTL.value = ''; f.PosisiID.value = ''; f.Gender.value = ''; f.Bagian.value = ''; 
+    }
+  }
+
+  // TAMBAHAN: Saat kosongkan form, filter nama ikut tersetel ulang
+  function resetFormMCU() { 
+    document.getElementById('mcuForm').reset(); 
+    document.getElementById('ID').value = ''; 
+    $('#inputNamaFilter').val(''); // Membersihkan kolom pencarian nama
+    $('#inputNama').val('');
   }
   function loadData() { loadDataAll(); }
 
