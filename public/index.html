@@ -675,7 +675,7 @@
       $('#appView').removeClass('d-none');
       
       // Panggil setupDashboard dengan false agar fungsi loadDataAll() dijalankan setelah login
-      setupDashboard(false); 
+      setupDashboard();
     } else { Swal.fire('Gagal', res.message, 'error'); }
   }).catch(err => Swal.fire('Error', 'Gagal terhubung ke Database.', 'error'));
 }
@@ -710,18 +710,41 @@
     if(el) { $('.nav-link').removeClass('active fw-bold'); $(el).addClass('active fw-bold'); } else if(isInit) {$('.nav-link').first().addClass('active fw-bold'); }
   }
 
-  function loadDataAll(setup = false, isPasienRole = false) {
+ function loadDataAll(setup = false, isPasienRole = false) {
+    // Tampilkan loading sebelum proses dimulai
     Swal.fire({ title: 'Memuat Ulang Database...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-    fetch(API_URL + '?action=readAll').then(r => r.json()).then(res => {
+    
+    fetch(API_URL + '?action=readAll')
+    .then(r => r.json())
+    .then(res => {
       if(res.status === 'success') {
-        mcuData = res.data.mcu || []; pasienData = res.data.pasien || []; dokterData = res.data.dokter || [];
-        if(isPasienRole) { renderDashboardPasien(); } else { populateUI(); }
+        // PERBAIKAN KRUSIAL: Pengecekan aman untuk mengantisipasi format respons LibSQL
+        // Pastikan kita selalu mendapatkan Array kosong jika data tidak ada, untuk mencegah Error 'forEach is not a function'
+        mcuData = res.data?.mcu || []; 
+        pasienData = res.data?.pasien || []; 
+        dokterData = res.data?.dokter || [];
+        
+        // Panggil fungsi render UI
+        if(isPasienRole || currentUser.role === 'Pasien') { 
+            renderDashboardPasien(); 
+        } else { 
+            populateUI(); 
+        }
+        
         if(setup) setupDashboard(true);
+        
+        // Tutup loading
         Swal.close();
-      } else { Swal.fire('Error', 'Gagal memuat data', 'error'); }
-    }).catch(err => { Swal.close(); });
-  }
-
+      } else { 
+        Swal.fire('Error', res.message || 'Gagal memuat data dari server', 'error'); 
+      }
+    })
+    .catch(err => { 
+        console.error("Fetch Error:", err);
+        Swal.fire('Error', 'Terjadi kesalahan sistem saat memproses data. Cek Console Browser.', 'error');
+        Swal.close(); 
+    });
+}
   function populateUI() { renderTablePasien(); renderTableRekap(); updateSelectPasien(); updateSelectDokter(); }
 
  function renderTablePasien() {
