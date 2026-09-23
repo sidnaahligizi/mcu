@@ -713,12 +713,17 @@
 function loadDataAll(setup = false, isPasienRole = false) {
     Swal.fire({ title: 'Memuat Ulang Database...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     
-    fetch(API_URL + '?action=readAll')
+    // TAMBAHAN: Sisipkan role dan nama user ke URL parameter
+    let queryParams = '?action=readAll';
+    if (currentUser && currentUser.role) {
+      queryParams += `&role=${currentUser.role}&user=${encodeURIComponent(currentUser.name)}`;
+    }
+
+    fetch(API_URL + queryParams)
     .then(r => r.json())
     .then(res => {
       try {
           if(res.status === 'success') {
-            // Validasi format data agar array aman digunakan
             mcuData = Array.isArray(res.data?.mcu) ? res.data.mcu : []; 
             pasienData = Array.isArray(res.data?.pasien) ? res.data.pasien : []; 
             dokterData = Array.isArray(res.data?.dokter) ? res.data.dokter : [];
@@ -739,7 +744,6 @@ function loadDataAll(setup = false, isPasienRole = false) {
           console.error("UI Render Error:", err);
           Swal.fire('Error', 'Gagal merender tampilan. Cek Console browser Anda.', 'error');
       } finally {
-          // Menutup loading, baik berhasil maupun gagal
           Swal.close(); 
       }
     })
