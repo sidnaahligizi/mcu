@@ -1,11 +1,11 @@
+// Kembalikan ke import standar agar login berhasil
 import { createClient } from '@libsql/client';
 
 const client = createClient({
-  url: process.env.TURSO_DATABASE_URL,
+  // KUNCI: Vercel Env Var untuk URL ini WAJIB menggunakan awalan https://
+  url: process.env.TURSO_DATABASE_URL, 
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
-
-let isDbInitialized = false; 
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -20,18 +20,19 @@ export default async function handler(req, res) {
       const { action } = req.query;
       
       if (action === 'readAll') {
-        // Eksekusi SATU PER SATU secara berurutan untuk menghindari Deadlock di Serverless Vercel
-        const mcuRes = await client.execute('SELECT * FROM mcu');
-        const pasienRes = await client.execute('SELECT * FROM pasien');
-        const dokterRes = await client.execute('SELECT * FROM dokter');
+        // Menggunakan batch untuk menarik 3 tabel dalam 1x request HTTP
+        const results = await client.batch([
+          'SELECT * FROM mcu',
+          'SELECT * FROM pasien',
+          'SELECT * FROM dokter'
+        ]);
         
-        // Jaminan aman: memastikan properties 'rows' selalu ada dan dikirim sebagai Array
         return res.status(200).json({ 
           status: 'success', 
           data: { 
-            mcu: mcuRes.rows || [], 
-            pasien: pasienRes.rows || [], 
-            dokter: dokterRes.rows || [] 
+            mcu: results[0].rows || [], 
+            pasien: results[1].rows || [], 
+            dokter: results[2].rows || [] 
           } 
         });
       }
@@ -74,6 +75,7 @@ export default async function handler(req, res) {
          }
          return res.status(200).json({ status: 'success', message: 'Batch Data Pasien berhasil disimpan & diupdate!' });
       }
+
       if (action === 'saveMCU') {
         const mcu_id = data.ID || new Date().getTime().toString();
         data.ID = mcu_id;
