@@ -659,10 +659,13 @@
     } else { $('input[name="IMT"]').val(''); }
   }
 
+  // FUNGSI LOGIN LEBIH CEPAT
   function handleLogin(e) {
     e.preventDefault(); 
     const role = $('#logRole').val(), user = $('#logUser').val(), pass = $('#logPass').val();
-    Swal.fire({ title: 'Masuk & Memuat Data...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    
+    // Ganti teks indikator
+    Swal.fire({ title: 'Verifikasi Akun...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     
     fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', role: role, user: user, pass: pass }), headers: { 'Content-Type': 'application/json' } })
     .then(res => res.json()).then(res => {
@@ -670,57 +673,54 @@
         currentUser = { role: res.role, name: res.name, id: res.id }; 
         sessionStorage.setItem('loggedUser', JSON.stringify(currentUser)); 
         
-        if(res.dbData) {
-          mcuData = res.dbData.mcu || [];
-          pasienData = res.dbData.pasien || [];
-          dokterData = res.dbData.dokter || [];
-        }
+        $('#loginView').addClass('d-none'); 
+        $('#appView').removeClass('d-none');
         
-        Swal.close(); 
-        $('#loginView').addClass('d-none'); $('#appView').removeClass('d-none');
-        setupDashboard(true); 
+        // Panggil setupDashboard dengan parameter false agar trigger pengambilan data
+        setupDashboard(false); 
       } else { Swal.fire('Gagal', res.message, 'error'); }
     }).catch(err => Swal.fire('Error', 'Gagal terhubung ke Database.', 'error'));
   }
 
-  function logout() { sessionStorage.removeItem('loggedUser'); location.reload(); }
-
   function setupDashboard(hasData = false) {
     $('#navUsername').text(currentUser.name);
     let tabs = '';
+    
+    // Konfigurasi Tab berdasarkan Role
     if (currentUser.role === 'Admin') {
       $('#dashWelcome').text('Halo Administrator,'); $('#dashSubtitle').text('Akses penuh untuk mengelola data akun pasien dan rekam medis MCU.');
       tabs = `<li class="nav-item"><a class="nav-link text-white active" href="#" onclick="switchTab('viewPasien', this)">Data Pasien</a></li><li class="nav-item"><a class="nav-link text-white" href="#" onclick="switchTab('viewForm', this)">Formulir MCU</a></li><li class="nav-item"><a class="nav-link text-white" href="#" onclick="switchTab('viewRekap', this)">Rekap MCU</a></li>`;
-      if(!hasData) loadDataAll(); else populateUI();
       switchTab('viewPasien', null, true);
     } else if (currentUser.role === 'Petugas') {
       $('#dashWelcome').text('Halo Petugas Medis,'); $('#dashSubtitle').text('Kelola input hasil Medical Check-Up dengan akurat.');
       tabs = `<li class="nav-item"><a class="nav-link text-white active" href="#" onclick="switchTab('viewForm', this)">Formulir MCU</a></li><li class="nav-item"><a class="nav-link text-white" href="#" onclick="switchTab('viewRekap', this)">Rekap MCU</a></li>`;
-      if(!hasData) loadDataAll(); else populateUI();
       switchTab('viewForm', null, true);
     } else if (currentUser.role === 'Pasien') {
       $('#dashWelcome').text('Halo, ' + currentUser.name); $('#dashSubtitle').text('Pantau riwayat rekam medis kesehatan Anda dengan transparan.');
       tabs = `<li class="nav-item"><a class="nav-link text-white active" href="#">Hasil MCU Saya</a></li>`;
       $('#pasienProfilNama').text(currentUser.name); 
-      if(!hasData) { loadDataAll(false, true); } else { renderDashboardPasien(); }
       switchTab('viewDashboardPasien', null, true);
     }
     $('#mainTabs').html(tabs);
-  }
 
-  function switchTab(tabId, el, isInit=false) {
-    $('.tab-view').addClass('d-none');$('#' + tabId).removeClass('d-none');
-    if(el) { $('.nav-link').removeClass('active fw-bold'); $(el).addClass('active fw-bold'); } else if(isInit) {$('.nav-link').first().addClass('active fw-bold'); }
+    // Jika belum punya data (baru login), ambil data
+    if(!hasData) {
+        // Tampilkan loading terpisah khusus untuk data
+        Swal.fire({ title: 'Memuat Data Dashboard...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        loadDataAll(false, currentUser.role === 'Pasien');
+    } else {
+        if(currentUser.role === 'Pasien') renderDashboardPasien(); 
+        else populateUI();
+    }
   }
 
   function loadDataAll(setup = false, isPasienRole = false) {
-    Swal.fire({ title: 'Memuat Ulang Database...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     fetch(API_URL + '?action=readAll').then(r => r.json()).then(res => {
       if(res.status === 'success') {
         mcuData = res.data.mcu || []; pasienData = res.data.pasien || []; dokterData = res.data.dokter || [];
         if(isPasienRole) { renderDashboardPasien(); } else { populateUI(); }
         if(setup) setupDashboard(true);
-        Swal.close();
+        Swal.close(); // Tutup loading setelah data benar-benar siap
       } else { Swal.fire('Error', 'Gagal memuat data', 'error'); }
     }).catch(err => { Swal.close(); });
   }
