@@ -1,5 +1,5 @@
 // Kembalikan ke import standar agar login berhasil
-import { createClient } from '@libsql/client';
+import { createClient } from '@libsql/client/web';
 
 const client = createClient({
   // KUNCI: Vercel Env Var untuk URL ini WAJIB menggunakan awalan https://
