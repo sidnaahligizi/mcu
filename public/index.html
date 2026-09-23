@@ -494,7 +494,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
-  const API_URL = '/api';
+ const API_URL = 'https://mcu-tan.vercel.app/api';
   let mcuData = [], pasienData = [], dokterData = [], dtRekap, dtPasien, currentUser = {};
 
   $(document).ready(() => { 
@@ -709,6 +709,7 @@
   }
 
   // FUNGSI LOAD DATA: Mengambil data dan ME-RENDER UI HANYA SETELAH DATA ADA
+  // FUNGSI LOAD DATA
   function loadDataAll() {
     Swal.fire({ title: 'Memuat Data Dashboard...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     
@@ -716,17 +717,12 @@
       .then(r => r.json())
       .then(res => {
         if(res.status === 'success') {
-          // Isi variabel global
           mcuData = res.data.mcu || []; 
           pasienData = res.data.pasien || []; 
           dokterData = res.data.dokter || [];
           
-          // RENDER UI BERDASARKAN ROLE SETELAH DATA DITERIMA
-          if(currentUser.role === 'Pasien') {
-             renderDashboardPasien();
-          } else {
-             populateUI();
-          }
+          if(currentUser.role === 'Pasien') { renderDashboardPasien(); } 
+          else { populateUI(); }
           
           Swal.close(); 
         } else { 
@@ -734,7 +730,8 @@
         }
       })
       .catch(err => { 
-        Swal.fire('Error', 'Koneksi ke server gagal.', 'error');
+        Swal.close(); // Tutup loading yang muter
+        Swal.fire('Error', 'Koneksi ke server Vercel gagal. Pastikan link API benar.', 'error');
         console.error(err);
       });
   }
