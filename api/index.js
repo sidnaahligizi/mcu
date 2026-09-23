@@ -20,24 +20,46 @@ export default async function handler(req, res) {
       const { action } = req.query;
       
       if (action === 'readAll') {
-        // Menggunakan batch untuk menarik 3 tabel dalam 1x request HTTP
-        const results = await client.batch([
-          'SELECT * FROM mcu',
-          'SELECT * FROM pasien',
-          'SELECT * FROM dokter'
-        ]);
+        const { role, user } = req.query; // Menangkap role dan nama user dari frontend
         
-        return res.status(200).json({ 
-          status: 'success', 
-          data: { 
-            mcu: results[0].rows || [], 
-            pasien: results[1].rows || [], 
-            dokter: results[2].rows || [] 
-          } 
-        });
+        try {
+          if (role === 'Pasien' && user) {
+            // KEAMANAN: Jika pasien, HANYA ambil data medis miliknya sendiri
+            const results = await client.batch([
+              { sql: 'SELECT * FROM mcu WHERE LOWER(Nama) = LOWER(?) ORDER BY TglPeriksa DESC', args: [user] },
+              { sql: 'SELECT * FROM pasien WHERE LOWER(Nama) = LOWER(?)', args: [user] },
+              'SELECT * FROM dokter'
+            ]);
+            
+            return res.status(200).json({ 
+              status: 'success', 
+              data: { 
+                mcu: results[0].rows || [], 
+                pasien: results[1].rows || [], 
+                dokter: results[2].rows || [] 
+              } 
+            });
+          } else {
+            // ADMIN/PETUGAS: Batasi maksimal 1500 baris terbaru agar browser tidak hang di masa depan
+            const results = await client.batch([
+              'SELECT * FROM mcu ORDER BY TglPeriksa DESC LIMIT 1500',
+              'SELECT * FROM pasien ORDER BY ID_Pasien DESC LIMIT 1500',
+              'SELECT * FROM dokter'
+            ]);
+            
+            return res.status(200).json({ 
+              status: 'success', 
+              data: { 
+                mcu: results[0].rows || [], 
+                pasien: results[1].rows || [], 
+                dokter: results[2].rows || [] 
+              } 
+            });
+          }
+        } catch (dbError) {
+          return res.status(500).json({ status: 'error', message: 'Gagal mengambil data dari database' });
+        }
       }
-      return res.status(400).json({ status: 'error', message: 'Aksi GET tidak valid' });
-    }
 
     if (req.method === 'POST') {
       const { action, data, role, user, pass, id } = req.body;
