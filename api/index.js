@@ -56,30 +56,25 @@ export default async function handler(req, res) {
       const { action, data, role, user, pass, id } = req.body;
 
       if (action === 'login') {
-        let isAuthenticated = false;
-        let userData = {};
+  let isAuthenticated = false;
+  let userData = {};
 
-        if (role === 'Admin' || role === 'Petugas') {
-          const result = await client.execute({ sql: 'SELECT * FROM akun WHERE role = ? AND username = ? AND password = ?', args: [role, user, pass] });
-          if (result.rows.length > 0) { isAuthenticated = true; userData = { name: user, role: role, id: 'admin' }; }
-        } else if (role === 'Pasien') {
-          const result = await client.execute({ sql: 'SELECT * FROM pasien WHERE LOWER(Nama) = LOWER(?) AND Password = ?', args: [user, pass] });
-          if (result.rows.length > 0) { isAuthenticated = true; userData = { name: result.rows[0].Nama, role: role, id: result.rows[0].ID_Pasien }; }
-        }
+  if (role === 'Admin' || role === 'Petugas') {
+    const result = await client.execute({ sql: 'SELECT * FROM akun WHERE role = ? AND username = ? AND password = ?', args: [role, user, pass] });
+    if (result.rows.length > 0) { isAuthenticated = true; userData = { name: user, role: role, id: 'admin' }; }
+  } else if (role === 'Pasien') {
+    const result = await client.execute({ sql: 'SELECT * FROM pasien WHERE LOWER(Nama) = LOWER(?) AND Password = ?', args: [user, pass] });
+    if (result.rows.length > 0) { isAuthenticated = true; userData = { name: result.rows[0].Nama, role: role, id: result.rows[0].ID_Pasien }; }
+  }
 
-        // Jika berhasil login, sekalian bawa data untuk menghapus antrean loading kedua di Frontend
-        if (isAuthenticated) {
-          const [mcuRes, pasienRes, dokterRes] = await Promise.all([
-            client.execute('SELECT * FROM mcu'), client.execute('SELECT * FROM pasien'), client.execute('SELECT * FROM dokter')
-          ]);
-          return res.status(200).json({ 
-            status: 'success', name: userData.name, role: userData.role, id: userData.id,
-            dbData: { mcu: mcuRes.rows, pasien: pasienRes.rows, dokter: dokterRes.rows }
-          });
-        }
-        return res.status(200).json({ status: 'error', message: 'Username atau Password salah!' });
-      }
-
+  if (isAuthenticated) {
+    // Hanya mengembalikan data user, TANPA query keseluruhan data mcu, pasien, dan dokter
+    return res.status(200).json({ 
+      status: 'success', name: userData.name, role: userData.role, id: userData.id
+    });
+  }
+  return res.status(200).json({ status: 'error', message: 'Username atau Password salah!' });
+}
 
      if (action === 'savePasienBatch') {
          for(let i=0; i<data.length; i++) {
