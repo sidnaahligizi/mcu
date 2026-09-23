@@ -660,28 +660,25 @@
   }
 
  function handleLogin(e) {
-    e.preventDefault(); 
-    const role = $('#logRole').val(), user = $('#logUser').val(), pass = $('#logPass').val();
-    Swal.fire({ title: 'Masuk & Memuat Data...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-    
-    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', role: role, user: user, pass: pass }), headers: { 'Content-Type': 'application/json' } })
-    .then(res => res.json()).then(res => {
-      if(res.status === 'success') { 
-        currentUser = { role: res.role, name: res.name, id: res.id }; 
-        sessionStorage.setItem('loggedUser', JSON.stringify(currentUser)); 
-        
-        if(res.dbData) {
-          mcuData = res.dbData.mcu || [];
-          pasienData = res.dbData.pasien || [];
-          dokterData = res.dbData.dokter || [];
-        }
-        
-        Swal.close(); 
-        $('#loginView').addClass('d-none'); $('#appView').removeClass('d-none');
-        setupDashboard(true); 
-      } else { Swal.fire('Gagal', res.message, 'error'); }
-    }).catch(err => Swal.fire('Error', 'Gagal terhubung ke Database.', 'error'));
-  }
+  e.preventDefault(); 
+  const role = $('#logRole').val(), user = $('#logUser').val(), pass = $('#logPass').val();
+  Swal.fire({ title: 'Otentikasi Akun...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+  
+  fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', role: role, user: user, pass: pass }), headers: { 'Content-Type': 'application/json' } })
+  .then(res => res.json()).then(res => {
+    if(res.status === 'success') { 
+      currentUser = { role: res.role, name: res.name, id: res.id }; 
+      sessionStorage.setItem('loggedUser', JSON.stringify(currentUser)); 
+      
+      Swal.close(); 
+      $('#loginView').addClass('d-none'); 
+      $('#appView').removeClass('d-none');
+      
+      // Panggil setupDashboard dengan false agar fungsi loadDataAll() dijalankan setelah login
+      setupDashboard(false); 
+    } else { Swal.fire('Gagal', res.message, 'error'); }
+  }).catch(err => Swal.fire('Error', 'Gagal terhubung ke Database.', 'error'));
+}
 
   function logout() { sessionStorage.removeItem('loggedUser'); location.reload(); }
 
