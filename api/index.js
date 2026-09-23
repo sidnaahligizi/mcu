@@ -1,4 +1,3 @@
-// WAJIB menggunakan /web di akhir import
 import { createClient } from '@libsql/client';
 
 const client = createClient({
@@ -21,17 +20,18 @@ export default async function handler(req, res) {
       const { action } = req.query;
       
       if (action === 'readAll') {
-        // Eksekusi berurutan terbukti tidak memicu deadlock di Vercel
+        // Eksekusi SATU PER SATU secara berurutan untuk menghindari Deadlock di Serverless Vercel
         const mcuRes = await client.execute('SELECT * FROM mcu');
         const pasienRes = await client.execute('SELECT * FROM pasien');
         const dokterRes = await client.execute('SELECT * FROM dokter');
         
+        // Jaminan aman: memastikan properties 'rows' selalu ada dan dikirim sebagai Array
         return res.status(200).json({ 
           status: 'success', 
           data: { 
-            mcu: mcuRes.rows, 
-            pasien: pasienRes.rows, 
-            dokter: dokterRes.rows 
+            mcu: mcuRes.rows || [], 
+            pasien: pasienRes.rows || [], 
+            dokter: dokterRes.rows || [] 
           } 
         });
       }
