@@ -7,6 +7,6 @@
     "start": "node api/index.js"
   },
   "dependencies": {
-    "@libsql/client": "^0.4.0-pre.5"
+    "@libsql/client": "^0.14.0" 
   }
 }
