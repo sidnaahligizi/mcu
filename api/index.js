@@ -24,7 +24,10 @@ async function initDB() {
     }
   } catch(e) { console.error("DB Init Error: ", e); }
 }
-let isDbInitialized = false; // Tambahkan di luar fungsi
+// ... (bagian import dan fungsi initDB di atas biarkan saja)
+
+let isDbInitialized = false; 
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -34,26 +37,42 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    // Cek agar hanya dijalankan sekali
+    // 1. HAPUS/KOMENTARI PEMANGGILAN initDB() 
+    // Karena tabel sudah ada, ini hanya membuang waktu dan memicu timeout.
+    /*
     if (!isDbInitialized) {
       await initDB();
       isDbInitialized = true;
     }
+    */
     
     if (req.method === 'GET') {
       const { action } = req.query;
       
       if (action === 'readAll') {
-        // GANTI MENJADI SEPERTI INI
-const mcuRes = await client.execute('SELECT * FROM mcu');
-const pasienRes = await client.execute('SELECT * FROM pasien');
-const dokterRes = await client.execute('SELECT * FROM dokter');
-        return res.status(200).json({ status: 'success', data: { mcu: mcuRes.rows, pasien: pasienRes.rows, dokter: dokterRes.rows } });
+        // 2. GUNAKAN client.batch()
+        // Ini memastikan ketiga data diambil HANYA DALAM 1X REQUEST jaringan ke Turso
+        const results = await client.batch([
+          'SELECT * FROM mcu',
+          'SELECT * FROM pasien',
+          'SELECT * FROM dokter'
+        ]);
+        
+        // Kembalikan response dengan mengambil index array dari hasil batch
+        return res.status(200).json({ 
+          status: 'success', 
+          data: { 
+            mcu: results[0].rows, 
+            pasien: results[1].rows, 
+            dokter: results[2].rows 
+          } 
+        });
       }
       return res.status(400).json({ status: 'error', message: 'Aksi GET tidak valid' });
     }
 
     if (req.method === 'POST') {
+      // ... (Kode untuk action login, saveMCU, dll biarkan SAMA PERSIS seperti sebelumnya)
       const { action, data, role, user, pass, id } = req.body;
 
       if (action === 'login') {
