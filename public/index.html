@@ -659,12 +659,11 @@
     } else { $('input[name="IMT"]').val(''); }
   }
 
-  // FUNGSI LOGIN LEBIH CEPAT
+ // FUNGSI LOGIN: Sama, cepat, dan hanya cek otentikasi
   function handleLogin(e) {
     e.preventDefault(); 
     const role = $('#logRole').val(), user = $('#logUser').val(), pass = $('#logPass').val();
     
-    // Ganti teks indikator
     Swal.fire({ title: 'Verifikasi Akun...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     
     fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', role: role, user: user, pass: pass }), headers: { 'Content-Type': 'application/json' } })
@@ -676,17 +675,17 @@
         $('#loginView').addClass('d-none'); 
         $('#appView').removeClass('d-none');
         
-        // Panggil setupDashboard dengan parameter false agar trigger pengambilan data
-        setupDashboard(false); 
+        // Panggil setup setelah UI dasar muncul
+        setupDashboard(); 
       } else { Swal.fire('Gagal', res.message, 'error'); }
     }).catch(err => Swal.fire('Error', 'Gagal terhubung ke Database.', 'error'));
   }
 
-  function setupDashboard(hasData = false) {
+  // FUNGSI SETUP: Hanya atur Tab Navigasi, lalu trigger Load Data
+  function setupDashboard(skipFetch = false) {
     $('#navUsername').text(currentUser.name);
     let tabs = '';
     
-    // Konfigurasi Tab berdasarkan Role
     if (currentUser.role === 'Admin') {
       $('#dashWelcome').text('Halo Administrator,'); $('#dashSubtitle').text('Akses penuh untuk mengelola data akun pasien dan rekam medis MCU.');
       tabs = `<li class="nav-item"><a class="nav-link text-white active" href="#" onclick="switchTab('viewPasien', this)">Data Pasien</a></li><li class="nav-item"><a class="nav-link text-white" href="#" onclick="switchTab('viewForm', this)">Formulir MCU</a></li><li class="nav-item"><a class="nav-link text-white" href="#" onclick="switchTab('viewRekap', this)">Rekap MCU</a></li>`;
@@ -703,27 +702,55 @@
     }
     $('#mainTabs').html(tabs);
 
-    // Jika belum punya data (baru login), ambil data
-    if(!hasData) {
-        // Tampilkan loading terpisah khusus untuk data
-        Swal.fire({ title: 'Memuat Data Dashboard...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-        loadDataAll(false, currentUser.role === 'Pasien');
-    } else {
-        if(currentUser.role === 'Pasien') renderDashboardPasien(); 
-        else populateUI();
+    // Ambil data jika skipFetch bernilai false
+    if (!skipFetch) {
+       loadDataAll();
     }
   }
 
-  function loadDataAll(setup = false, isPasienRole = false) {
-    fetch(API_URL + '?action=readAll').then(r => r.json()).then(res => {
-      if(res.status === 'success') {
-        mcuData = res.data.mcu || []; pasienData = res.data.pasien || []; dokterData = res.data.dokter || [];
-        if(isPasienRole) { renderDashboardPasien(); } else { populateUI(); }
-        if(setup) setupDashboard(true);
-        Swal.close(); // Tutup loading setelah data benar-benar siap
-      } else { Swal.fire('Error', 'Gagal memuat data', 'error'); }
-    }).catch(err => { Swal.close(); });
+  // FUNGSI LOAD DATA: Mengambil data dan ME-RENDER UI HANYA SETELAH DATA ADA
+  function loadDataAll() {
+    Swal.fire({ title: 'Memuat Data Dashboard...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    
+    fetch(API_URL + '?action=readAll')
+      .then(r => r.json())
+      .then(res => {
+        if(res.status === 'success') {
+          // Isi variabel global
+          mcuData = res.data.mcu || []; 
+          pasienData = res.data.pasien || []; 
+          dokterData = res.data.dokter || [];
+          
+          // RENDER UI BERDASARKAN ROLE SETELAH DATA DITERIMA
+          if(currentUser.role === 'Pasien') {
+             renderDashboardPasien();
+          } else {
+             populateUI();
+          }
+          
+          Swal.close(); 
+        } else { 
+          Swal.fire('Error', 'Gagal memuat data dari server.', 'error'); 
+        }
+      })
+      .catch(err => { 
+        Swal.fire('Error', 'Koneksi ke server gagal.', 'error');
+        console.error(err);
+      });
   }
+
+  // JALAN SAAT HALAMAN DI-REFRESH
+  $(document).ready(() => { 
+    const savedUser = sessionStorage.getItem('loggedUser'); 
+    if(savedUser) { 
+      currentUser = JSON.parse(savedUser); 
+      $('#loginView').addClass('d-none'); 
+      $('#appView').removeClass('d-none');
+      
+      // Setup dan otomatis tarik data
+      setupDashboard(); 
+    } 
+  });
 
   function populateUI() { renderTablePasien(); renderTableRekap(); updateSelectPasien(); updateSelectDokter(); }
 
