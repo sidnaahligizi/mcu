@@ -711,29 +711,27 @@
   }
 
  function loadDataAll(setup = false, isPasienRole = false) {
-    // Tampilkan loading sebelum proses dimulai
     Swal.fire({ title: 'Memuat Ulang Database...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     
     fetch(API_URL + '?action=readAll')
     .then(r => r.json())
     .then(res => {
       if(res.status === 'success') {
-        // PERBAIKAN KRUSIAL: Pengecekan aman untuk mengantisipasi format respons LibSQL
-        // Pastikan kita selalu mendapatkan Array kosong jika data tidak ada, untuk mencegah Error 'forEach is not a function'
         mcuData = res.data?.mcu || []; 
         pasienData = res.data?.pasien || []; 
         dokterData = res.data?.dokter || [];
         
-        // Panggil fungsi render UI
-        if(isPasienRole || currentUser.role === 'Pasien') { 
-            renderDashboardPasien(); 
-        } else { 
-            populateUI(); 
+        // Memastikan tabel tidak dirender dua kali
+        if (setup) {
+            setupDashboard(true); 
+        } else {
+            if(isPasienRole || currentUser.role === 'Pasien') { 
+                renderDashboardPasien(); 
+            } else { 
+                populateUI(); 
+            }
         }
         
-        if(setup) setupDashboard(true);
-        
-        // Tutup loading
         Swal.close();
       } else { 
         Swal.fire('Error', res.message || 'Gagal memuat data dari server', 'error'); 
@@ -744,7 +742,8 @@
         Swal.fire('Error', 'Terjadi kesalahan sistem saat memproses data. Cek Console Browser.', 'error');
         Swal.close(); 
     });
-}
+  }
+  
   function populateUI() { renderTablePasien(); renderTableRekap(); updateSelectPasien(); updateSelectDokter(); }
 
  function renderTablePasien() {
