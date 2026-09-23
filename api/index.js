@@ -63,14 +63,19 @@ export default async function handler(req, res) {
           if (result.rows.length > 0) { isAuthenticated = true; userData = { name: result.rows[0].Nama, role: role, id: result.rows[0].ID_Pasien }; }
         }
 
+        // Jika berhasil login, sekalian bawa data untuk menghapus antrean loading kedua di Frontend
         if (isAuthenticated) {
-          // Hanya kembalikan status login, JANGAN menyertakan seluruh data (dbData) di sini
+          const [mcuRes, pasienRes, dokterRes] = await Promise.all([
+            client.execute('SELECT * FROM mcu'), client.execute('SELECT * FROM pasien'), client.execute('SELECT * FROM dokter')
+          ]);
           return res.status(200).json({ 
-            status: 'success', name: userData.name, role: userData.role, id: userData.id
+            status: 'success', name: userData.name, role: userData.role, id: userData.id,
+            dbData: { mcu: mcuRes.rows, pasien: pasienRes.rows, dokter: dokterRes.rows }
           });
         }
         return res.status(200).json({ status: 'error', message: 'Username atau Password salah!' });
       }
+
 
      if (action === 'savePasienBatch') {
          for(let i=0; i<data.length; i++) {
