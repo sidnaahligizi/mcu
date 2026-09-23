@@ -44,9 +44,10 @@ export default async function handler(req, res) {
       const { action } = req.query;
       
       if (action === 'readAll') {
-        const [mcuRes, pasienRes, dokterRes] = await Promise.all([
-           client.execute('SELECT * FROM mcu'), client.execute('SELECT * FROM pasien'), client.execute('SELECT * FROM dokter')
-        ]);
+        // GANTI MENJADI SEPERTI INI
+const mcuRes = await client.execute('SELECT * FROM mcu');
+const pasienRes = await client.execute('SELECT * FROM pasien');
+const dokterRes = await client.execute('SELECT * FROM dokter');
         return res.status(200).json({ status: 'success', data: { mcu: mcuRes.rows, pasien: pasienRes.rows, dokter: dokterRes.rows } });
       }
       return res.status(400).json({ status: 'error', message: 'Aksi GET tidak valid' });
