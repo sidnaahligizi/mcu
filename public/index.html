@@ -718,7 +718,7 @@ function loadDataAll(setup = false, isPasienRole = false) {
     .then(res => {
       try {
           if(res.status === 'success') {
-            // Validasi lapis ganda: Memastikan format data BENAR-BENAR Array agar forEach tidak error
+            // Validasi format data agar array aman digunakan
             mcuData = Array.isArray(res.data?.mcu) ? res.data.mcu : []; 
             pasienData = Array.isArray(res.data?.pasien) ? res.data.pasien : []; 
             dokterData = Array.isArray(res.data?.dokter) ? res.data.dokter : [];
@@ -737,9 +737,9 @@ function loadDataAll(setup = false, isPasienRole = false) {
           }
       } catch (err) {
           console.error("UI Render Error:", err);
-          Swal.fire('Error', 'Gagal merender tampilan. Cek Console.', 'error');
+          Swal.fire('Error', 'Gagal merender tampilan. Cek Console browser Anda.', 'error');
       } finally {
-          // JAMINAN MUTLAK: Loading spinner pasti tertutup setelah proses selesai/gagal
+          // Menutup loading, baik berhasil maupun gagal
           Swal.close(); 
       }
     })
@@ -751,21 +751,31 @@ function loadDataAll(setup = false, isPasienRole = false) {
   }
 
   function renderTablePasien() {
-    // Cara teraman menghancurkan DataTable agar tidak bentrok
-    if ($.fn.DataTable.isDataTable('#tablePasien')) { $('#tablePasien').DataTable().clear().destroy(); }
+    // Hapus DataTable lama jika sudah ada
+    if ($.fn.DataTable.isDataTable('#tablePasien')) { 
+        $('#tablePasien').DataTable().clear().destroy(); 
+    }
     
     let html = '';
-    pasienData.forEach(r => { html += `<tr><td class="fw-bold">${r.Nama}</td><td>${formatTanggalIndo(r.TglLahir)}</td><td>${r.PosisiID}</td><td>${r.Bagian}</td><td>${r.Password}</td><td><button class="btn btn-sm btn-warning" onclick="editPasien('${r.ID_Pasien}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="hapusData('deletePasien', '${r.ID_Pasien}')"><i class="fas fa-trash"></i></button></td></tr>`; });
+    pasienData.forEach(r => { 
+        html += `<tr><td class="fw-bold">${r.Nama}</td><td>${formatTanggalIndo(r.TglLahir)}</td><td>${r.PosisiID}</td><td>${r.Bagian}</td><td>${r.Password}</td><td><button class="btn btn-sm btn-warning" onclick="editPasien('${r.ID_Pasien}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="hapusData('deletePasien', '${r.ID_Pasien}')"><i class="fas fa-trash"></i></button></td></tr>`; 
+    });
+    
     $('#bodyPasien').html(html); 
     dtPasien = $('#tablePasien').DataTable({ responsive: true });
   }
 
   function renderTableRekap() {
-    // Cara teraman menghancurkan DataTable agar tidak bentrok
-    if ($.fn.DataTable.isDataTable('#tableRekap')) { $('#tableRekap').DataTable().clear().destroy(); }
+    // Hapus DataTable lama jika sudah ada
+    if ($.fn.DataTable.isDataTable('#tableRekap')) { 
+        $('#tableRekap').DataTable().clear().destroy(); 
+    }
     
     let html = '';
-    mcuData.forEach(r => { html += `<tr><td><span class="badge bg-secondary">${r.NoPeriksa || ''}</span></td><td>${formatTanggalIndo(r.TglPeriksa) || ''}</td><td class="fw-bold">${r.Nama || ''}</td><td>${r.Bagian || ''}</td><td>${r.Diagnosa || ''}</td><td class="text-center"><button class="btn btn-sm btn-success" onclick="printData('${r.ID}')"><i class="fas fa-print"></i></button> <button class="btn btn-sm btn-warning" onclick="editMCU('${r.ID}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="hapusData('deleteMCU', '${r.ID}')"><i class="fas fa-trash"></i></button></td></tr>`; });
+    mcuData.forEach(r => { 
+        html += `<tr><td><span class="badge bg-secondary">${r.NoPeriksa || ''}</span></td><td>${formatTanggalIndo(r.TglPeriksa) || ''}</td><td class="fw-bold">${r.Nama || ''}</td><td>${r.Bagian || ''}</td><td>${r.Diagnosa || ''}</td><td class="text-center"><button class="btn btn-sm btn-success" onclick="printData('${r.ID}')"><i class="fas fa-print"></i></button> <button class="btn btn-sm btn-warning" onclick="editMCU('${r.ID}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="hapusData('deleteMCU', '${r.ID}')"><i class="fas fa-trash"></i></button></td></tr>`; 
+    });
+    
     $('#bodyRekap').html(html); 
     
     dtRekap = $('#tableRekap').DataTable({ 
