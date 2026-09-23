@@ -1,5 +1,5 @@
 // WAJIB menggunakan /web di akhir import
-import { createClient } from '@libsql/client/web';
+import { createClient } from '@libsql/client';
 
 const client = createClient({
   url: process.env.TURSO_DATABASE_URL,
