@@ -710,55 +710,64 @@
     if(el) { $('.nav-link').removeClass('active fw-bold'); $(el).addClass('active fw-bold'); } else if(isInit) {$('.nav-link').first().addClass('active fw-bold'); }
   }
 
- function loadDataAll(setup = false, isPasienRole = false) {
+function loadDataAll(setup = false, isPasienRole = false) {
     Swal.fire({ title: 'Memuat Ulang Database...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     
     fetch(API_URL + '?action=readAll')
     .then(r => r.json())
     .then(res => {
-      if(res.status === 'success') {
-        mcuData = res.data?.mcu || []; 
-        pasienData = res.data?.pasien || []; 
-        dokterData = res.data?.dokter || [];
-        
-        // Memastikan tabel tidak dirender dua kali
-        if (setup) {
-            setupDashboard(true); 
-        } else {
-            if(isPasienRole || currentUser.role === 'Pasien') { 
-                renderDashboardPasien(); 
-            } else { 
-                populateUI(); 
+      try {
+          if(res.status === 'success') {
+            // Validasi lapis ganda: Memastikan format data BENAR-BENAR Array agar forEach tidak error
+            mcuData = Array.isArray(res.data?.mcu) ? res.data.mcu : []; 
+            pasienData = Array.isArray(res.data?.pasien) ? res.data.pasien : []; 
+            dokterData = Array.isArray(res.data?.dokter) ? res.data.dokter : [];
+            
+            if (setup) {
+                setupDashboard(true); 
+            } else {
+                if(isPasienRole || currentUser.role === 'Pasien') { 
+                    renderDashboardPasien(); 
+                } else { 
+                    populateUI(); 
+                }
             }
-        }
-        
-        Swal.close();
-      } else { 
-        Swal.fire('Error', res.message || 'Gagal memuat data dari server', 'error'); 
+          } else { 
+            Swal.fire('Error', res.message || 'Gagal memuat data dari server', 'error'); 
+          }
+      } catch (err) {
+          console.error("UI Render Error:", err);
+          Swal.fire('Error', 'Gagal merender tampilan. Cek Console.', 'error');
+      } finally {
+          // JAMINAN MUTLAK: Loading spinner pasti tertutup setelah proses selesai/gagal
+          Swal.close(); 
       }
     })
     .catch(err => { 
         console.error("Fetch Error:", err);
-        Swal.fire('Error', 'Terjadi kesalahan sistem saat memproses data. Cek Console Browser.', 'error');
+        Swal.fire('Error', 'Terjadi kesalahan jaringan saat memproses data.', 'error');
         Swal.close(); 
     });
   }
-  
-  function populateUI() { renderTablePasien(); renderTableRekap(); updateSelectPasien(); updateSelectDokter(); }
 
- function renderTablePasien() {
-    if (dtPasien) dtPasien.destroy(); let html = '';
+  function renderTablePasien() {
+    // Cara teraman menghancurkan DataTable agar tidak bentrok
+    if ($.fn.DataTable.isDataTable('#tablePasien')) { $('#tablePasien').DataTable().clear().destroy(); }
+    
+    let html = '';
     pasienData.forEach(r => { html += `<tr><td class="fw-bold">${r.Nama}</td><td>${formatTanggalIndo(r.TglLahir)}</td><td>${r.PosisiID}</td><td>${r.Bagian}</td><td>${r.Password}</td><td><button class="btn btn-sm btn-warning" onclick="editPasien('${r.ID_Pasien}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="hapusData('deletePasien', '${r.ID_Pasien}')"><i class="fas fa-trash"></i></button></td></tr>`; });
-    $('#bodyPasien').html(html); dtPasien = $('#tablePasien').DataTable({ responsive: true });
+    $('#bodyPasien').html(html); 
+    dtPasien = $('#tablePasien').DataTable({ responsive: true });
   }
 
   function renderTableRekap() {
-    if (dtRekap) dtRekap.destroy(); let html = '';
-    mcuData.forEach(r => { html += `<tr><td><span class="badge bg-secondary">${r.NoPeriksa || ''}</span></td><td>${formatTanggalIndo(r.TglPeriksa) || ''}</td><td class="fw-bold">${r.Nama || ''}</td><td>${r.Bagian || ''}</td><td>${r.Diagnosa || ''}</td><td class="text-center"><button class="btn btn-sm btn-success" onclick="printData('${r.ID}')"><i class="fas fa-print"></i></button> <button class="btn btn-sm btn-warning" onclick="editMCU('${r.ID}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="hapusData('deleteMCU', '${r.ID}')"><i class="fas fa-trash"></i></button></td></tr>`; });
+    // Cara teraman menghancurkan DataTable agar tidak bentrok
+    if ($.fn.DataTable.isDataTable('#tableRekap')) { $('#tableRekap').DataTable().clear().destroy(); }
     
+    let html = '';
+    mcuData.forEach(r => { html += `<tr><td><span class="badge bg-secondary">${r.NoPeriksa || ''}</span></td><td>${formatTanggalIndo(r.TglPeriksa) || ''}</td><td class="fw-bold">${r.Nama || ''}</td><td>${r.Bagian || ''}</td><td>${r.Diagnosa || ''}</td><td class="text-center"><button class="btn btn-sm btn-success" onclick="printData('${r.ID}')"><i class="fas fa-print"></i></button> <button class="btn btn-sm btn-warning" onclick="editMCU('${r.ID}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="hapusData('deleteMCU', '${r.ID}')"><i class="fas fa-trash"></i></button></td></tr>`; });
     $('#bodyRekap').html(html); 
     
-    // UBAH TOMBOL EXPORT BAWAAN DATATABLES KE CUSTOM FUNCTION
     dtRekap = $('#tableRekap').DataTable({ 
       responsive: true, 
       order: [[0, 'desc']], 
@@ -767,14 +776,12 @@
         { 
           text: '<i class="fas fa-file-excel"></i> Export Semua Data Excel', 
           className: 'btn btn-success btn-sm mb-3 fw-bold', 
-          action: function ( e, dt, node, config ) {
-             exportSemuaDataMCU();
-          }
+          action: function ( e, dt, node, config ) { exportSemuaDataMCU(); } 
         } 
       ] 
     });
   }
-
+function populateUI() { renderTablePasien(); renderTableRekap(); updateSelectPasien(); updateSelectDokter(); }
   function updateSelectDokter() { let opts = '<option value="">-- Pilih Dokter --</option>'; dokterData.forEach(d => { opts += `<option value="${d.Nama}">${d.Nama}</option>`; }); $('#selectDokter').html(opts); }
   function autoFillDokter() { const val = $('#selectDokter').val(), d = dokterData.find(x => x.Nama === val); if(d) { $('#inputNipDokter').val(d.NIP); } else { $('#inputNipDokter').val(''); } }
 
