@@ -24,7 +24,7 @@ async function initDB() {
     }
   } catch(e) { console.error("DB Init Error: ", e); }
 }
-
+let isDbInitialized = false; // Tambahkan di luar fungsi
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -34,8 +34,12 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    await initDB(); 
-
+    // Cek agar hanya dijalankan sekali
+    if (!isDbInitialized) {
+      await initDB();
+      isDbInitialized = true;
+    }
+    
     if (req.method === 'GET') {
       const { action } = req.query;
       
