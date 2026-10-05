@@ -190,8 +190,21 @@
                 <div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">Gigi</label><select class="form-select form-select-sm bg-kuning" name="Gigi"><option value="-">-</option><option>Normal</option><option>Berlubang</option><option>Patah/Ompong</option></select></div><div class="col-6"><label class="small text-muted">Lidah</label><select class="form-select form-select-sm bg-kuning" name="Lidah"><option value="-">-</option><option>Normal/Bersih</option><option>Kotor</option></select></div><div class="col-6"><label class="small text-muted">Tongsil</label><select class="form-select form-select-sm bg-kuning" name="Tongsil"><option value="-">-</option><option>NORMAL</option><option>Tidak Normal</option></select></div><div class="col-6"><label class="small text-muted">Nafas Frekuensi</label><input type="text" class="form-control form-control-sm" name="Nafas"></div><div class="col-12"><label class="small text-muted">Leher</label><input type="text" class="form-control form-control-sm" name="Leher" value="KELENJAR LIMFA, GONDOK TIDAK MEMBESAR"></div></div>
                 <div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">Abd Lingkar Perut</label><input type="text" class="form-control form-control-sm" name="AbdLingkar" placeholder="cm"></div><div class="col-6"><label class="small text-muted">Abd Peristaltik</label><select class="form-select form-select-sm bg-kuning" name="AbdPeristaltik"><option value="-">-</option><option>NORMAL</option><option>Tidak Normal</option></select></div><div class="col-6"><label class="small text-muted">Genetalia & Anus</label><input type="text" class="form-control form-control-sm" name="Genetalia" value="-"></div><div class="col-6"><label class="small text-muted">Kulit</label><input type="text" class="form-control form-control-sm" name="Kulit" value="-"></div><div class="col-6"><label class="small text-muted">Tulang Belakang</label><select class="form-select form-select-sm bg-kuning" name="Tulang"><option value="-">-</option><option>Lurus/Batas Wajar</option><option>Tidak Normal</option></select></div><div class="col-6"><label class="small text-muted">Extrimitas Atas</label><input type="text" class="form-control form-control-sm" name="ExtAtas" value="DALAM BATAS NORMAL"></div><div class="col-12"><label class="small text-muted">Extrimitas Bawah</label><input type="text" class="form-control form-control-sm" name="ExtBawah" value="DALAM BATAS NORMAL"></div></div>
                 <h6 class="text-secondary fw-bold bg-light p-2 rounded mt-3">Penunjang Umum</h6>
-                <div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">Radiologi</label><input type="text" class="form-control form-control-sm" name="Radiologi" value="TIDAK DILAKUKAN PEMERIKSAAN"></div><div class="col-6"><label class="small text-muted">EKG</label><select class="form-select form-select-sm bg-kuning" name="EKG"><option value="-">-</option><option>NORMAL</option><option>Tidak Normal</option></select></div></div>
-              </div>
+<div class="row g-2 mb-2">
+  <div class="col-12"><label class="small text-muted">Radiologi</label><input type="text" class="form-control form-control-sm" name="Radiologi" value="TIDAK DILAKUKAN PEMERIKSAAN"></div>
+  <div class="col-4">
+    <label class="small text-muted">EKG</label>
+    <select class="form-select form-select-sm bg-kuning" name="EKG" id="selectEKG" onchange="toggleDetailEKG()">
+      <option value="-">-</option>
+      <option value="NORMAL">NORMAL</option>
+      <option value="Tidak Normal">Tidak Normal</option>
+    </select>
+  </div>
+  <div class="col-8 d-none" id="containerDetailEKG">
+    <label class="small text-muted text-danger fw-bold">Detail EKG Tidak Normal</label>
+    <input type="text" class="form-control form-control-sm" name="EKG_Detail" id="inputDetailEKG" placeholder="Tuliskan keterangan detail EKG...">
+  </div>
+</div>              </div>
             </div>
           </div>
         </div>
@@ -841,7 +854,16 @@ function populateUI() { renderTablePasien(); renderTableRekap(); updateSelectPas
         const myModal = new bootstrap.Modal(document.getElementById('modalPasien')); myModal.show(); 
     } 
   }
-  
+  // Fungsi untuk menampilkan/menyembunyikan input detail EKG
+  function toggleDetailEKG() {
+    const val = $('#selectEKG').val();
+    if (val === 'Tidak Normal') {
+      $('#containerDetailEKG').removeClass('d-none');
+    } else {
+      $('#containerDetailEKG').addClass('d-none');
+      $('#inputDetailEKG').val(''); // Kosongkan isian jika diganti ke Normal
+    }
+  }
   function editMCU(id) {
     const data = mcuData.find(row => row.ID == id);
     if(data) {
@@ -849,13 +871,25 @@ function populateUI() { renderTablePasien(); renderTableRekap(); updateSelectPas
       const f = document.getElementById('mcuForm');$('#inputNamaFilter').val(data['Nama']); 
       Object.keys(data).forEach(k => { if(f[k]) f[k].value = data[k]; });
       f.ID.value = data.ID; $('#inputNama').val(data['Nama']); 
-      kalkulasiIMT(); window.scrollTo({ top: 0, behavior: 'smooth' });
+      kalkulasiIMT();
+      
+      // TAMBAHAN: Cek status EKG saat edit form
+      toggleDetailEKG();
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
   function resetFormPasien() { document.getElementById('formPasien').reset(); document.getElementById('ID_Pasien').value = ''; }
-  function resetFormMCU() { document.getElementById('mcuForm').reset(); document.getElementById('ID').value = ''; $('#inputNamaFilter').val(''); $('#inputNama').val(''); }
-
+  function resetFormMCU() { 
+    document.getElementById('mcuForm').reset(); 
+    document.getElementById('ID').value = ''; 
+    $('#inputNamaFilter').val(''); 
+    $('#inputNama').val(''); 
+    
+    // TAMBAHAN: Sembunyikan detail EKG saat reset
+    $('#containerDetailEKG').addClass('d-none');
+  }
   function formatTanggalIndo(tglStr) {
     if (!tglStr) return '-';
     const parts = tglStr.split('-');
@@ -877,7 +911,13 @@ function populateUI() { renderTablePasien(); renderTableRekap(); updateSelectPas
       
       $('#p_v_tk_ka').text(d['VisusTanpaKa'] || '-'); $('#p_v_tk_ki').text(d['VisusTanpaKi'] || '-'); $('#p_j_ka').text(d['JulingKa'] || '-'); $('#p_j_ki').text(d['JulingKi'] || '-'); $('#p_r_ka').text(d['RadangKa'] || '-'); $('#p_r_ki').text(d['RadangKi'] || '-');
       $('#p_d_ka').text(d['TelingaDengarKa'] || '-'); $('#p_d_ki').text(d['TelingaDengarKi'] || '-'); $('#p_c_ka').text(d['TelingaLiangKa'] || '-'); $('#p_c_ki').text(d['TelingaLiangKi'] || '-');
-      $('#p_gigi').text(d['Gigi'] || '-'); $('#p_lidah').text(d['Lidah'] || '-'); $('#p_tongsil').text(d['Tongsil'] || '-'); $('#p_leher').text(d['Leher'] || '-'); $('#p_nafas').text(d['Nafas'] || '-'); $('#p_rad').text(d['Radiologi'] || '-'); $('#p_ekg').text(d['EKG'] || '-');
+      $('#p_gigi').text(d['Gigi'] || '-'); $('#p_lidah').text(d['Lidah'] || '-'); $('#p_tongsil').text(d['Tongsil'] || '-'); $('#p_leher').text(d['Leher'] || '-'); $('#p_nafas').text(d['Nafas'] || '-'); $('#p_rad').text(d['Radiologi'] || '-'); 
+// Logika EKG Cetak: Jika tidak normal, gabungkan dengan detailnya
+if (d['EKG'] === 'Tidak Normal' && d['EKG_Detail']) {
+  $('#p_ekg').html(`<span class="text-danger fw-bold">Tidak Normal</span> (${d['EKG_Detail']})`);
+} else {
+  $('#p_ekg').text(d['EKG'] || '-');
+}
       $('#p_abling').text(d['AbdLingkar'] || '-'); $('#p_abper').text(d['AbdPeristaltik'] || '-'); $('#p_gen').text(d['Genetalia'] || '-'); $('#p_kulit').text(d['Kulit'] || '-'); $('#p_tul').text(d['Tulang'] || '-'); $('#p_exa').text(d['ExtAtas'] || '-'); $('#p_exb').text(d['ExtBawah'] || '-');
       
       $('#p_l_hb').text(d['Lab_Hb']||'-'); $('#p_l_ht').text(d['Lab_Ht']||'-'); $('#p_l_eri').text(d['Lab_Eritrosit']||'-'); $('#p_l_trombo').text(d['Lab_Trombosit']||'-'); $('#p_l_leko').text(d['Lab_Lekosit']||'-'); $('#p_l_jleko').text(d['Lab_JenisLekosit']||'-'); $('#p_l_led').text(d['Lab_LED']||'-');
