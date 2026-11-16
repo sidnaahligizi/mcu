@@ -155,41 +155,48 @@
                 <div class="row g-2 mb-2"><div class="col-6"><label class="small">Posisi / ID</label><input type="text" class="form-control form-control-sm bg-light" name="PosisiID" readonly></div><div class="col-6"><label class="small">Bagian</label><input type="text" class="form-control form-control-sm bg-light" name="Bagian" readonly></div></div>
                 <div class="mb-3"><label class="small">Gender</label><input type="text" class="form-control form-control-sm bg-light" name="Gender" readonly></div>
 
-                <h6 class="text-secondary fw-bold bg-light p-2 rounded">Anamnesa Umum & Vital</h6>
-                <div class="row g-2 mb-2"><div class="col-6"><label class="small">Kebersihan Umum</label><select class="form-select form-select-sm bg-kuning" name="Kebersihan"><option value="-">-</option><option>BAIK</option><option>Kurang Baik</option><option>Jelek</option></select></div><div class="col-6"><label class="small">Kepala & Muka</label><select class="form-select form-select-sm bg-kuning" name="KepalaMuka"><option value="-">-</option><option>NORMAL</option><option>Tidak Normal</option></select></div></div>
-                <div class="mb-2"><label class="small">Keluhan</label><input type="text" class="form-control form-control-sm" name="Keluhan" value="-"></div>
-                <div class="mb-2"><label class="small">Riwayat Penyakit</label><input type="text" class="form-control form-control-sm" name="RPenyakit" value="-"></div>
-                <div class="mb-2"><label class="small">R. Penyakit Keluarga</label><input type="text" class="form-control form-control-sm" name="RKeluarga" value="-"></div>
-                <div class="mb-3"><label class="small">Riwayat Alergi</label><select class="form-select form-select-sm bg-kuning" name="RAlergi"><option value="-">-</option><option>TIDAK ADA</option><option>ADA</option></select></div>
-                
-                <div class="row g-2 mb-2">
-                  <div class="col-4"><label class="small">BB (Kg)</label><input type="number" step="any" class="form-control form-control-sm" name="BB" oninput="kalkulasiIMT()"></div>
-                  <div class="col-4"><label class="small">TB (cm)</label><input type="number" step="any" class="form-control form-control-sm" name="TB" oninput="kalkulasiIMT()"></div>
-                  <div class="col-4"><label class="small text-primary fw-bold">IMT</label><input type="text" class="form-control form-control-sm bg-light fw-bold" name="IMT" readonly placeholder="-"></div>
-                </div>
-                <div class="row g-2 mb-2">
-                  <div class="col-6"><label class="small">Tempt (°C)</label><input type="text" class="form-control form-control-sm" name="Suhu"></div>
-                  <div class="col-6"><label class="small">Buta Warna</label><select class="form-select form-select-sm bg-kuning" name="ButaWarna"><option value="-">-</option><option>NORMAL</option><option>YA</option></select></div>
-                </div>
-                <div class="row g-2 mb-2">
-                  <div class="col-4"><label class="small">Tensi (mmHg)</label><input type="text" class="form-control form-control-sm" name="Tensi"></div>
-                  <div class="col-4"><label class="small">Icterus</label><select class="form-select form-select-sm bg-kuning" name="Icterus"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div>
-                  <div class="col-4"><label class="small">Cyanosis</label><select class="form-select form-select-sm bg-kuning" name="Cyanosis"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div>
-                </div>
-                <div class="row g-2 mb-3">
-                  <div class="col-6"><label class="small">Nadi (x/m)</label><input type="text" class="form-control form-control-sm" name="Nadi"></div>
-                  <div class="col-6"><label class="small">Anemis</label><select class="form-select form-select-sm bg-kuning" name="Anemis"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div>
-                </div>
-              </div>
+<h6 class="text-secondary fw-bold bg-light p-2 rounded">Anamnesa Umum & Vital</h6>
+<div class="row g-2 mb-2"><div class="col-6"><label class="small">Kebersihan Umum</label><select class="form-select form-select-sm bg-kuning" name="Kebersihan"><option value="-">-</option><option>BAIK</option><option>Kurang Baik</option><option>Jelek</option></select></div><div class="col-6"><label class="small">Kepala & Muka</label><select class="form-select form-select-sm bg-kuning" name="KepalaMuka"><option value="-">-</option><option>NORMAL</option><option>Tidak Normal</option></select></div></div>
+<div class="mb-2"><label class="small">Keluhan</label><input type="text" class="form-control form-control-sm" name="Keluhan" value="-"></div>
+<div class="mb-2"><label class="small">Riwayat Penyakit</label><input type="text" class="form-control form-control-sm" name="RPenyakit" value="-"></div>
+<div class="mb-2"><label class="small">R. Penyakit Keluarga</label><input type="text" class="form-control form-control-sm" name="RKeluarga" value="-"></div>
+<div class="mb-3"><label class="small">Riwayat Alergi</label><select class="form-select form-select-sm bg-kuning" name="RAlergi"><option value="-">-</option><option>TIDAK ADA</option><option>ADA</option></select></div>
 
-              <div class="col-md-6">
-                <h6 class="text-secondary fw-bold bg-light p-2 rounded">Pemeriksaan Organ</h6>
-                <div class="row g-2 mb-1"><div class="col-6"><label class="small text-muted">Visus Tnp Kaca (Ka/Ki)</label><div class="input-group input-group-sm"><input type="text" class="form-control" name="VisusTanpaKa"><input type="text" class="form-control" name="VisusTanpaKi"></div></div><div class="col-6"><label class="small text-muted">Visus Dgn Kaca (Ka/Ki)</label><div class="input-group input-group-sm"><input type="text" class="form-control" name="VisusKacaKa"><input type="text" class="form-control" name="VisusKacaKi"></div></div></div>
-                <div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">Juling (Ka/Ki)</label><div class="input-group input-group-sm"><select class="form-select bg-kuning" name="JulingKa"><option value="-">-</option><option>TIDAK</option><option>YA</option></select><select class="form-select bg-kuning" name="JulingKi"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div></div><div class="col-6"><label class="small text-muted">Radang (Ka/Ki)</label><div class="input-group input-group-sm"><select class="form-select bg-kuning" name="RadangKa"><option value="-">-</option><option>TIDAK</option><option>YA</option></select><select class="form-select bg-kuning" name="RadangKi"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div></div></div>
-                <div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">Telinga Dengar (Ka/Ki)</label><div class="input-group input-group-sm"><select class="form-select bg-kuning" name="TelingaDengarKa"><option value="-">-</option><option>NORMAL</option><option>GANGGUAN</option></select><select class="form-select bg-kuning" name="TelingaDengarKi"><option value="-">-</option><option>NORMAL</option><option>GANGGUAN</option></select></div></div><div class="col-6"><label class="small text-muted">Liang/Cerumen (Ka/Ki)</label><div class="input-group input-group-sm"><select class="form-select bg-kuning" name="TelingaLiangKa"><option value="-">-</option><option>BERSIH</option><option>KOTOR</option></select><select class="form-select bg-kuning" name="TelingaLiangKi"><option value="-">-</option><option>BERSIH</option><option>KOTOR</option></select></div></div></div>
-                <div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">Gigi</label><select class="form-select form-select-sm bg-kuning" name="Gigi"><option value="-">-</option><option>Normal</option><option>Berlubang</option><option>Patah/Ompong</option></select></div><div class="col-6"><label class="small text-muted">Lidah</label><select class="form-select form-select-sm bg-kuning" name="Lidah"><option value="-">-</option><option>Normal/Bersih</option><option>Kotor</option></select></div><div class="col-6"><label class="small text-muted">Tongsil</label><select class="form-select form-select-sm bg-kuning" name="Tongsil"><option value="-">-</option><option>NORMAL</option><option>Tidak Normal</option></select></div><div class="col-6"><label class="small text-muted">Nafas Frekuensi</label><input type="text" class="form-control form-control-sm" name="Nafas"></div><div class="col-12"><label class="small text-muted">Leher</label><input type="text" class="form-control form-control-sm" name="Leher" value="KELENJAR LIMFA, GONDOK TIDAK MEMBESAR"></div></div>
-                <div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">Abd Lingkar Perut</label><input type="text" class="form-control form-control-sm" name="AbdLingkar" placeholder="cm"></div><div class="col-6"><label class="small text-muted">Abd Peristaltik</label><select class="form-select form-select-sm bg-kuning" name="AbdPeristaltik"><option value="-">-</option><option>NORMAL</option><option>Tidak Normal</option></select></div><div class="col-6"><label class="small text-muted">Genetalia & Anus</label><input type="text" class="form-control form-control-sm" name="Genetalia" value="-"></div><div class="col-6"><label class="small text-muted">Kulit</label><input type="text" class="form-control form-control-sm" name="Kulit" value="-"></div><div class="col-6"><label class="small text-muted">Tulang Belakang</label><select class="form-select form-select-sm bg-kuning" name="Tulang"><option value="-">-</option><option>Lurus/Batas Wajar</option><option>Tidak Normal</option></select></div><div class="col-6"><label class="small text-muted">Extrimitas Atas</label><input type="text" class="form-control form-control-sm" name="ExtAtas" value="DALAM BATAS NORMAL"></div><div class="col-12"><label class="small text-muted">Extrimitas Bawah</label><input type="text" class="form-control form-control-sm" name="ExtBawah" value="DALAM BATAS NORMAL"></div></div>
-                <h6 class="text-secondary fw-bold bg-light p-2 rounded mt-3">Penunjang Umum</h6>
+<!-- PERUBAHAN: Posisi BB, TB, IMT ditaruh di atas Tensi dll -->
+<div class="row g-2 mb-2">
+  <div class="col-4"><label class="small">BB (Kg)</label><input type="number" step="any" class="form-control form-control-sm" name="BB" oninput="kalkulasiIMT()"></div>
+  <div class="col-4"><label class="small">TB (cm)</label><input type="number" step="any" class="form-control form-control-sm" name="TB" oninput="kalkulasiIMT()"></div>
+  <div class="col-4"><label class="small text-primary fw-bold">IMT</label><input type="text" class="form-control form-control-sm bg-light fw-bold" name="IMT" readonly placeholder="-"></div>
+</div>
+<div class="row g-2 mb-2">
+  <div class="col-6"><label class="small">Tempt (°C)</label><input type="text" class="form-control form-control-sm" name="Suhu"></div>
+  <div class="col-6"><label class="small">Buta Warna</label><select class="form-select form-select-sm bg-kuning" name="ButaWarna"><option value="-">-</option><option>NORMAL</option><option>YA</option></select></div>
+</div>
+<!-- PERUBAHAN: Nafas diletakkan di bawah Buta Warna -->
+<div class="mb-2">
+  <label class="small text-muted">Pernafasan Frekuensi (x/menit)</label>
+  <input type="text" class="form-control form-control-sm" name="Nafas">
+</div>
+<div class="row g-2 mb-2">
+  <div class="col-4"><label class="small">Tensi (mmHg)</label><input type="text" class="form-control form-control-sm" name="Tensi"></div>
+  <div class="col-4"><label class="small">Icterus</label><select class="form-select form-select-sm bg-kuning" name="Icterus"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div>
+  <div class="col-4"><label class="small">Cyanosis</label><select class="form-select form-select-sm bg-kuning" name="Cyanosis"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div>
+</div>
+<div class="row g-2 mb-3">
+  <div class="col-6"><label class="small">Nadi (x/m)</label><input type="text" class="form-control form-control-sm" name="Nadi"></div>
+  <div class="col-6"><label class="small">Anemis</label><select class="form-select form-select-sm bg-kuning" name="Anemis"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div>
+</div>
+
+<h6 class="text-secondary fw-bold bg-light p-2 rounded">Pemeriksaan Organ</h6>
+<div class="row g-2 mb-1"><div class="col-6"><label class="small text-muted">Visus Tnp Kaca (Ka/Ki)</label><div class="input-group input-group-sm"><input type="text" class="form-control" name="VisusTanpaKa"><input type="text" class="form-control" name="VisusTanpaKi"></div></div><div class="col-6"><label class="small text-muted">Visus Dgn Kaca (Ka/Ki)</label><div class="input-group input-group-sm"><input type="text" class="form-control" name="VisusKacaKa"><input type="text" class="form-control" name="VisusKacaKi"></div></div></div>
+<div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">Juling (Ka/Ki)</label><div class="input-group input-group-sm"><select class="form-select bg-kuning" name="JulingKa"><option value="-">-</option><option>TIDAK</option><option>YA</option></select><select class="form-select bg-kuning" name="JulingKi"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div></div><div class="col-6"><label class="small text-muted">Radang (Ka/Ki)</label><div class="input-group input-group-sm"><select class="form-select bg-kuning" name="RadangKa"><option value="-">-</option><option>TIDAK</option><option>YA</option></select><select class="form-select bg-kuning" name="RadangKi"><option value="-">-</option><option>TIDAK</option><option>YA</option></select></div></div></div>
+<div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">Telinga Dengar (Ka/Ki)</label><div class="input-group input-group-sm"><select class="form-select bg-kuning" name="TelingaDengarKa"><option value="-">-</option><option>NORMAL</option><option>GANGGUAN</option></select><select class="form-select bg-kuning" name="TelingaDengarKi"><option value="-">-</option><option>NORMAL</option><option>GANGGUAN</option></select></div></div><div class="col-6"><label class="small text-muted">Liang/Cerumen (Ka/Ki)</label><div class="input-group input-group-sm"><select class="form-select bg-kuning" name="TelingaLiangKa"><option value="-">-</option><option>BERSIH</option><option>KOTOR</option></select><select class="form-select bg-kuning" name="TelingaLiangKi"><option value="-">-</option><option>BERSIH</option><option>KOTOR</option></select></div></div></div>
+<!-- PERUBAHAN: Mulut Dihapus -->
+<div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">Gigi</label><select class="form-select form-select-sm bg-kuning" name="Gigi"><option value="-">-</option><option>Normal</option><option>Berlubang</option><option>Patah/Ompong</option></select></div><div class="col-6"><label class="small text-muted">Lidah</label><select class="form-select form-select-sm bg-kuning" name="Lidah"><option value="-">-</option><option>Normal/Bersih</option><option>Kotor</option></select></div><div class="col-6"><label class="small text-muted">Tongsil</label><select class="form-select form-select-sm bg-kuning" name="Tongsil"><option value="-">-</option><option>NORMAL</option><option>Tidak Normal</option></select></div><div class="col-12"><label class="small text-muted">Leher</label><input type="text" class="form-control form-control-sm" name="Leher" value="KELENJAR LIMFA, GONDOK TIDAK MEMBESAR"></div></div>
+<div class="row g-2 mb-2"><div class="col-6"><label class="small text-muted">Abd Lingkar Perut</label><input type="text" class="form-control form-control-sm" name="AbdLingkar" placeholder="cm"></div><div class="col-6"><label class="small text-muted">Abd Peristaltik</label><select class="form-select form-select-sm bg-kuning" name="AbdPeristaltik"><option value="-">-</option><option>NORMAL</option><option>Tidak Normal</option></select></div><div class="col-6"><label class="small text-muted">Genetalia & Anus</label><input type="text" class="form-control form-control-sm" name="Genetalia" value="-"></div><div class="col-6"><label class="small text-muted">Kulit</label><input type="text" class="form-control form-control-sm" name="Kulit" value="-"></div><div class="col-6"><label class="small text-muted">Tulang Belakang</label><select class="form-select form-select-sm bg-kuning" name="Tulang"><option value="-">-</option><option>Lurus/Batas Wajar</option><option>Tidak Normal</option></select></div><div class="col-6"><label class="small text-muted">Extrimitas Atas</label><input type="text" class="form-control form-control-sm" name="ExtAtas" value="DALAM BATAS NORMAL"></div><div class="col-12"><label class="small text-muted">Extrimitas Bawah</label><input type="text" class="form-control form-control-sm" name="ExtBawah" value="DALAM BATAS NORMAL"></div></div>
+
+<h6 class="text-secondary fw-bold bg-light p-2 rounded mt-3">Penunjang Umum</h6>
+<!-- PERUBAHAN: Radiologi dan EKG dengan input detail tambahan -->
 <div class="row g-2 mb-2">
   <div class="col-12"><label class="small text-muted">Radiologi</label><input type="text" class="form-control form-control-sm" name="Radiologi" value="TIDAK DILAKUKAN PEMERIKSAAN"></div>
   <div class="col-4">
@@ -201,10 +208,11 @@
     </select>
   </div>
   <div class="col-8 d-none" id="containerDetailEKG">
-    <label class="small text-muted text-danger fw-bold">Detail EKG Tidak Normal</label>
+    <label class="small text-muted text-danger fw-bold">Keterangan EKG Tidak Normal</label>
     <input type="text" class="form-control form-control-sm" name="EKG_Detail" id="inputDetailEKG" placeholder="Tuliskan keterangan detail EKG...">
   </div>
-</div>              </div>
+</div>
+              </div>
             </div>
           </div>
         </div>
@@ -367,6 +375,7 @@
           
           <table class="print-table w-100 mb-4">
             <tr><td colspan="4" class="section-header">PEMERIKSAAN FISIK & UMUM</td></tr>
+            <!-- PERUBAHAN: BB, TB, IMT berada di baris pertama form cetak -->
             <tr>
               <td width="25%" style="padding: 0; vertical-align: top;">
                 <table class="nested-align-table">
@@ -379,6 +388,7 @@
                 <table class="nested-align-table">
                   <tr><td width="55%"><b>Tempt</b></td><td width="5%">:</td><td><span id="p_suhu"></span> °C</td></tr>
                   <tr><td><b>Buta Warna</b></td><td>:</td><td><span id="p_butawarna"></span></td></tr>
+                  <!-- PERUBAHAN: Pernafasan di bawah Buta Warna -->
                   <tr><td><b>Pernafasan</b></td><td>:</td><td><span id="p_nafas"></span> x/menit</td></tr>
                 </table>
               </td>
@@ -416,7 +426,8 @@
                   <tr><td><b>Radang</b></td><td>:</td><td>Ka: <span id="p_r_ka"></span> Ki: <span id="p_r_ki"></span></td></tr>
                   <tr><td><b>Telinga</b></td><td>:</td><td>Dengar (Ka: <span id="p_d_ka"></span> Ki: <span id="p_d_ki"></span>)</td></tr>
                   <tr><td><b>Cerumen</b></td><td>:</td><td>Ka: <span id="p_c_ka"></span> Ki: <span id="p_c_ki"></span></td></tr>
-                  <tr><td><b>Mulut & Leher</b></td><td>:</td><td>Gigi: <span id="p_gigi"></span></td></tr>
+                  <!-- PERUBAHAN: Mulut Dihapus, sisa Gigi -->
+                  <tr><td><b>Gigi</b></td><td>:</td><td><span id="p_gigi"></span></td></tr>
                   <tr><td><b>Lidah</b></td><td>:</td><td><span id="p_lidah"></span></td></tr>
                   <tr><td><b>Tongsil</b></td><td>:</td><td><span id="p_tongsil"></span></td></tr>
                   <tr><td><b>Leher</b></td><td>:</td><td><span id="p_leher"></span></td></tr>
@@ -425,6 +436,7 @@
                   <tr><td><b>Genetalia/Kulit</b></td><td>:</td><td><span id="p_gen"></span> / <span id="p_kulit"></span></td></tr>
                   <tr><td><b>Tulang Belakang</b></td><td>:</td><td><span id="p_tul"></span></td></tr>
                   <tr><td><b>Extrimitas</b></td><td>:</td><td>Atas: <span id="p_exa"></span> / Bawah: <span id="p_exb"></span></td></tr>
+                  <!-- PERUBAHAN: Radiologi & EKG diletakkan paling bawah -->
                   <tr><td><b>Radiologi</b></td><td>:</td><td><span id="p_rad"></span></td></tr>
                   <tr><td><b>EKG</b></td><td>:</td><td><span id="p_ekg"></span></td></tr>
                 </table>
